@@ -1,0 +1,23 @@
+{
+  "name": "anloca",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "start:catalog": "cd services/catalog-service && npm run start:dev",
+    "start:cart": "cd services/cart-service && npm run start:dev",
+    "start:auth": "cd services/auth-service && npm run start:dev",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Highkam/Anloca.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/Highkam/Anloca/issues"
+  },
+  "homepage": "https://github.com/Highkam/Anloca#readme"
+}
