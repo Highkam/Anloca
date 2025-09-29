@@ -1,0 +1,53 @@
+version: '3.8'
+
+services:
+  postgres-cart:
+    image: postgres:15-alpine
+    container_name: cart_postgres_dev
+    environment:
+      POSTGRES_DB: cart_db
+      POSTGRES_USER: cart_user
+      POSTGRES_PASSWORD: cart_password
+    ports:
+      - "5433:5432" # OJO: usa otro puerto si ya tienes otro Postgres corriendo
+    volumes:
+      - cart_postgres_data:/var/lib/postgresql/data
+      - ./init.sql:/docker-entrypoint-initdb.d/init.sql
+    networks:
+      - cart-network
+
+  pgadmin-cart:
+    image: dpage/pgadmin4
+    container_name: cart_pgadmin_dev
+    environment:
+      PGADMIN_DEFAULT_EMAIL: admin@localhost
+      PGADMIN_DEFAULT_PASSWORD: admin123
+    ports:
+      - "5051:80" # distinto al general para que no choque
+    depends_on:
+      - postgres-cart
+    networks:
+      - cart-network
+
+  cart-service:
+    build: .
+    container_name: cart_service
+    command: npm run start:dev
+    volumes:
+      - .:/usr/src/app
+      - /usr/src/app/node_modules
+    ports:
+      - "3003:3000" # NestJS expuesto en el 3003
+    environment:
+      DATABASE_URL: "postgresql://cart_user:cart_password@postgres-cart:5432/cart_db?schema=public"
+    depends_on:
+      - postgres-cart
+    networks:
+      - cart-network
+
+volumes:
+  cart_postgres_data:
+
+networks:
+  cart-network:
+    driver: bridge

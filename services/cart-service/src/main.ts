@@ -2,6 +2,9 @@ import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 
+//Para ver la documentacion, correr el servicio y entrar a http://localhost:3002/api/docs
+//Para levantar el servicio: npm run start:cart
+
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
 
