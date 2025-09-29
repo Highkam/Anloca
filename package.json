@@ -19,5 +19,13 @@
   "bugs": {
     "url": "https://github.com/Highkam/Anloca/issues"
   },
-  "homepage": "https://github.com/Highkam/Anloca#readme"
+  "homepage": "https://github.com/Highkam/Anloca#readme",
+  "dependencies": {
+    "@nestjs/common": "^11.1.6",
+    "nestjs": "^0.0.1"
+  },
+  "devDependencies": {
+    "@nestjs/testing": "^11.1.6",
+    "@types/jest": "^30.0.0"
+  }
 }
