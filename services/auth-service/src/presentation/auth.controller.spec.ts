@@ -6,12 +6,12 @@ describe('AuthController', () => {
   let loginUseCase: jest.Mocked<LoginUseCase>;
 
   beforeEach(() => {
-    // 👇 create a plain mock object for LoginUseCase
+   
     loginUseCase = {
       execute: jest.fn(),
     } as unknown as jest.Mocked<LoginUseCase>;
 
-    // 👇 inject the mock into the controller
+   
     authController = new AuthController(loginUseCase);
   });
 

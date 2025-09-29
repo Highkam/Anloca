@@ -14,13 +14,13 @@ describe('LoginUseCase', () => {
     loginUseCase = new LoginUseCase(mockUserRepository);
   });
 
-  it('✅ should return success if user exists and password is correct', async () => {
+  it('should return success if user exists and password is correct', async () => {
     const hash = await bcrypt.hash('mypassword123', 10);
     mockUserRepository.findByEmail.mockResolvedValue({
       id_user: 1,
       name: 'Test User',
       email: 'test@example.com',
-      password: hash, // <-- must be a hash, because use case calls bcrypt.compare
+      password: hash,
       register_date: new Date(),
       role_id: 1,
     });
@@ -33,7 +33,7 @@ describe('LoginUseCase', () => {
     });
   });
 
-  it('❌ should return user not found if user does not exist', async () => {
+  it('should return user not found if user does not exist', async () => {
     mockUserRepository.findByEmail.mockResolvedValue(null);
 
     const result = await loginUseCase.execute('no@found.com', '123456');
@@ -44,7 +44,7 @@ describe('LoginUseCase', () => {
     });
   });
 
-  it('❌ should return invalid password if password is wrong', async () => {
+  it('should return invalid password if password is wrong', async () => {
     const hash = await bcrypt.hash('mypassword123', 10);
     mockUserRepository.findByEmail.mockResolvedValue({
       id_user: 1,

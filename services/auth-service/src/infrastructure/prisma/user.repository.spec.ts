@@ -16,16 +16,15 @@ describe('UserRepository', () => {
   let prismaMock: { user: { findUnique: jest.Mock } };
 
   beforeEach(() => {
-    // We know that inside UserRepository it will do: new PrismaClient()
-    // so we just grab the mocked implementation.
+   
     const prismaInstance = new PrismaClient() as any;
     prismaMock = prismaInstance;
-    userRepository = new UserRepository(); // 👈 no args now
+    userRepository = new UserRepository(); 
     // @ts-ignore
-    userRepository['prisma'] = prismaMock; // 👈 override its prisma property with our mock
+    userRepository['prisma'] = prismaMock; 
   });
 
-  it('✅ should find user by email', async () => {
+  it('should find user by email', async () => {
     const mockUser = {
       id_user: 1,
       email: 'test@example.com',
@@ -45,7 +44,7 @@ describe('UserRepository', () => {
     });
   });
 
-  it('❌ should return null if user not found', async () => {
+  it('should return null if user not found', async () => {
     prismaMock.user.findUnique.mockResolvedValue(null);
 
     const user = await userRepository.findByEmail('no@found.com');
