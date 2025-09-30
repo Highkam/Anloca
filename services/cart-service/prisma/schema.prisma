@@ -15,7 +15,7 @@ model Cart {
 }
 
 model CartProduct {
-  id        Int @id @default(autoincrement())
+  id        Int     @id @default(autoincrement())
   cartId    Int
   productId Int
   amount    Int
