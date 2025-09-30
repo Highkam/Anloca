@@ -1,12 +1,14 @@
 import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
+import { ValidationPipe } from '@nestjs/common';
 
-//Para ver la documentacion, correr el servicio y entrar a http://localhost:3002/api/docs
-//Para levantar el servicio: npm run start:cart
+//Para levantar el servicio desde services: npm run start:cart
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
+
+  app.useGlobalPipes(new ValidationPipe({ whitelist: true, forbidNonWhitelisted: true }));
 
   const config = new DocumentBuilder()
     .setTitle('Cart Service')
@@ -17,6 +19,10 @@ async function bootstrap() {
   const document = SwaggerModule.createDocument(app, config);
   SwaggerModule.setup('api/docs', app, document);
 
-  await app.listen(3002);
+  const port = 3002;
+  await app.listen(port);
+
+  console.log(`🚀 API escuchando en: http://localhost:${port}`);
+  console.log(`📄 Documentación Swagger disponible en: http://localhost:${port}/api/docs`);
 }
 bootstrap();

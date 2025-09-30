@@ -1,18 +1,17 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
 datasource db {
   provider = "postgresql"
   url      = env("DATABASE_URL")
 }
 
-generator client {
-  provider = "prisma-client-js"
-}
-
 model Cart {
-  id        Int           @id @default(autoincrement())
+  id        Int      @id @default(autoincrement())
   userId    Int
-  createdAt DateTime      @default(now())
+  createdAt DateTime @default(now())
   state     String
-  products  CartProduct[]
 }
 
 model CartProduct {
@@ -20,7 +19,6 @@ model CartProduct {
   cartId    Int
   productId Int
   amount    Int
-
-  cart Cart @relation(fields: [cartId], references: [id])
 }
+
 
