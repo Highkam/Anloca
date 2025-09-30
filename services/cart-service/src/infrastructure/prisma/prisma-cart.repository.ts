@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
-import { PrismaService } from '../../prisma.service';
-import { CartRepositoryPort } from '../../../core/carts/domain/cart.repository.port';
-import { Cart } from '../../../core/carts/domain/cart.entity';
+import { PrismaService } from '../prisma.service';
+import { CartRepositoryPort } from '../../core/carts/domain/cart.repository.port';
+import { Cart } from '../../core/carts/domain/cart.entity';
 
 @Injectable()
 export class PrismaCartRepository implements CartRepositoryPort {
