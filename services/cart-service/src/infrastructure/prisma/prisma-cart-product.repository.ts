@@ -26,4 +26,11 @@ export class PrismaCartProductRepository implements CartProductRepositoryPort {
       c => new CartProduct(c.id, c.cartId, c.productId, c.amount),
     );
   }
+
+  async deleteByCartAndProduct(cartId: number, productId: number): Promise<CartProduct | null> {
+    const found = await this.prisma.cartProduct.findFirst({ where: { cartId, productId } });
+    if (!found) return null;
+    const deleted = await this.prisma.cartProduct.delete({ where: { id: found.id } });
+    return new CartProduct(deleted.id, deleted.cartId, deleted.productId, deleted.amount);
+  }
 }

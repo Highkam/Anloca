@@ -14,3 +14,15 @@ export class ListCartsUseCase {
     return await this.cartRepository.listByUser(userId);
   }
 }
+
+@Injectable()
+export class ListAllCartsUseCase {
+  constructor(
+    @Inject(CART_REPOSITORY)
+    private readonly cartRepository: CartRepositoryPort,
+  ) {}
+
+  async execute(): Promise<Cart[]> {
+    return await this.cartRepository.listAll();
+  }
+}
