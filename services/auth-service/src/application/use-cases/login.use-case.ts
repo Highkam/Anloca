@@ -1,6 +1,8 @@
 import * as bcrypt from 'bcrypt';
 import { UserRepository } from '../../infrastructure/prisma/user.repository';
+import { Injectable } from '@nestjs/common';
 
+@Injectable()
 export class LoginUseCase {
   constructor(private readonly userRepo: UserRepository) {}
 
