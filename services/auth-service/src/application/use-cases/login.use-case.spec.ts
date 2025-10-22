@@ -1,65 +1,59 @@
 import { LoginUseCase } from './login.use-case';
-import { UserRepository } from 'src/infrastructure/prisma/user.repository';
-import * as bcrypt from 'bcrypt';
+import { UnauthorizedException } from '@nestjs/common';
 
 describe('LoginUseCase', () => {
   let loginUseCase: LoginUseCase;
-  let mockUserRepository: jest.Mocked<UserRepository>;
+  let userRepoMock: any;
 
   beforeEach(() => {
-    mockUserRepository = {
+    userRepoMock = {
       findByEmail: jest.fn(),
-    } as unknown as jest.Mocked<UserRepository>;
-
-    loginUseCase = new LoginUseCase(mockUserRepository);
+    };
+    loginUseCase = new LoginUseCase(userRepoMock);
   });
 
-  it('should return success if user exists and password is correct', async () => {
-    const hash = await bcrypt.hash('mypassword123', 10);
-    mockUserRepository.findByEmail.mockResolvedValue({
+  it('should return id_user, email, name and sessionToken if user exists and password is correct', async () => {
+    const user = {
       id_user: 1,
-      name: 'Test User',
       email: 'test@example.com',
-      password: hash,
+      password: 'mypassword123', // plaintext accepted by current implementation
+      name: 'Test User',
       register_date: new Date(),
       role_id: 1,
-    });
+    };
+    userRepoMock.findByEmail.mockResolvedValue(user);
 
-    const result = await loginUseCase.execute('test@example.com', 'mypassword123');
+    const result: any = await loginUseCase.execute('test@example.com', 'mypassword123');
 
-    expect(result).toEqual({
-      success: true,
-      message: 'Login successful',
-    });
+    expect(result).toBeDefined();
+    expect(result.id_user).toBe(1);
+    expect(result.email).toBe('test@example.com');
+    expect(result.name).toBe('Test User');
+    expect(typeof result.sessionToken).toBe('string');
+    expect(result.sessionToken.length).toBeGreaterThan(0);
   });
 
-  it('should return user not found if user does not exist', async () => {
-    mockUserRepository.findByEmail.mockResolvedValue(null);
+  it('should throw UnauthorizedException if user does not exist', async () => {
+    userRepoMock.findByEmail.mockResolvedValue(null);
 
-    const result = await loginUseCase.execute('no@found.com', '123456');
-
-    expect(result).toEqual({
-      success: false,
-      message: 'User not found',
-    });
+    await expect(
+      loginUseCase.execute('noone@example.com', 'any'),
+    ).rejects.toBeInstanceOf(UnauthorizedException);
   });
 
-  it('should return invalid password if password is wrong', async () => {
-    const hash = await bcrypt.hash('mypassword123', 10);
-    mockUserRepository.findByEmail.mockResolvedValue({
-      id_user: 1,
-      name: 'Test User',
-      email: 'test@example.com',
-      password: hash,
+  it('should throw UnauthorizedException if password is wrong', async () => {
+    const user = {
+      id_user: 2,
+      email: 'test2@example.com',
+      password: 'correct-password',
+      name: 'Another User',
       register_date: new Date(),
       role_id: 1,
-    });
+    };
+    userRepoMock.findByEmail.mockResolvedValue(user);
 
-    const result = await loginUseCase.execute('test@example.com', 'wrongPassword');
-
-    expect(result).toEqual({
-      success: false,
-      message: 'Invalid password',
-    });
+    await expect(
+      loginUseCase.execute('test2@example.com', 'wrong-password'),
+    ).rejects.toBeInstanceOf(UnauthorizedException);
   });
 });
