@@ -1,4 +1,4 @@
-import { Body, Controller, Delete, Get, Param, Post, ParseIntPipe, NotFoundException } from '@nestjs/common';
+import { Body, Controller, Delete, Get, Param, Post, ParseIntPipe, NotFoundException, Headers } from '@nestjs/common';
 import { ApiTags, ApiOperation, ApiResponse, ApiParam, ApiBadRequestResponse } from '@nestjs/swagger';
 import { CreateCartUseCase } from '../../../core/carts/application/usecases/create-cart.usecase';
 import { GetCartUseCase } from '../../../core/carts/application/usecases/get-cart.usecase';
@@ -7,6 +7,7 @@ import { DeleteCartUseCase } from '../../../core/carts/application/usecases/dele
 import { CartDto } from '../../../core/carts/application/dto/cart.dto';
 import { CreateCartDto } from '../../../core/carts/application/dto/create-cart.dto';
 import { CartMapper } from '../../../core/carts/application/mappers/cart.mapper';
+import { AuthClientService } from '../../../infrastructure/auth.client';
 
 @ApiTags('Carts')
 @Controller('carts')
@@ -17,14 +18,22 @@ export class CartController {
     private readonly listCarts: ListCartsUseCase,
     private readonly listAllCarts: ListAllCartsUseCase,
     private readonly deleteCart: DeleteCartUseCase,
+    private readonly authClient: AuthClientService,
   ) {}
 
   @Post()
   @ApiOperation({ summary: 'Crear un carrito para un usuario' })
   @ApiResponse({ status: 201, description: 'Carrito creado exitosamente', type: CartDto })
   @ApiBadRequestResponse({ description: 'Datos inválidos al crear carrito' })
-  async create(@Body() dto: CreateCartDto) {
-    const cart = await this.createCart.execute(dto.userId);
+  async create(@Body() dto: CreateCartDto, @Headers('x-session-token') sessionToken?: string) {
+    // Si el cliente envía un token de sesión, consultamos el servicio de auth para resolver el id del usuario
+    let userId = dto.userId ?? null;
+    if (sessionToken) {
+      const session = await this.authClient.getSession(sessionToken);
+      userId = session?.id ?? userId;
+    }
+    if (!userId) throw new NotFoundException('User id not provided and session token not valid');
+    const cart = await this.createCart.execute(userId);
     return CartMapper.toDto(cart);
   }
 
