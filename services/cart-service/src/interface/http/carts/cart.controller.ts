@@ -2,7 +2,7 @@ import { Body, Controller, Delete, Get, Param, Post, ParseIntPipe, NotFoundExcep
 import { ApiTags, ApiOperation, ApiResponse, ApiParam, ApiBadRequestResponse } from '@nestjs/swagger';
 import { CreateCartUseCase } from '../../../core/carts/application/usecases/create-cart.usecase';
 import { GetCartUseCase } from '../../../core/carts/application/usecases/get-cart.usecase';
-import { ListCartsUseCase } from '../../../core/carts/application/usecases/list-cart.usecase';
+import { ListCartsUseCase, ListAllCartsUseCase } from '../../../core/carts/application/usecases/list-cart.usecase';
 import { DeleteCartUseCase } from '../../../core/carts/application/usecases/delete-cart.usecase';
 import { CartDto } from '../../../core/carts/application/dto/cart.dto';
 import { CreateCartDto } from '../../../core/carts/application/dto/create-cart.dto';
@@ -15,6 +15,7 @@ export class CartController {
     private readonly createCart: CreateCartUseCase,
     private readonly getCart: GetCartUseCase,
     private readonly listCarts: ListCartsUseCase,
+    private readonly listAllCarts: ListAllCartsUseCase,
     private readonly deleteCart: DeleteCartUseCase,
   ) {}
 
@@ -25,6 +26,14 @@ export class CartController {
   async create(@Body() dto: CreateCartDto) {
     const cart = await this.createCart.execute(dto.userId);
     return CartMapper.toDto(cart);
+  }
+
+  @Get('all')
+  @ApiOperation({ summary: 'Listar todos los carritos' })
+  @ApiResponse({ status: 200, description: 'Lista de todos los carritos', type: [CartDto] })
+  async listAll() {
+    const carts = await this.listAllCarts.execute();
+    return carts.map(c => CartMapper.toDto(c));
   }
 
   @Get(':id')

@@ -31,6 +31,11 @@ export class PrismaCartRepository implements CartRepositoryPort {
     return carts.map(c => new Cart(c.id, c.userId, c.createdAt, c.state));
   }
 
+  async listAll(): Promise<Cart[]> {
+    const carts = await this.prisma.cart.findMany();
+    return carts.map(c => new Cart(c.id, c.userId, c.createdAt, c.state));
+  }
+
   async delete(idCart: number): Promise<void> {
     await this.prisma.cart.delete({
       where: { id: idCart },
