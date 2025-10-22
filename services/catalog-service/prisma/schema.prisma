@@ -1,0 +1,22 @@
+// prisma/schema.prisma
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Product {
+  id_product   Int      @id @default(autoincrement()) @map("id_product")
+  name         String   @map("name")
+  description  String?  @map("description")
+  price        Float    @map("price")
+  stock        Int      @map("stock")
+  category     String   @map("category")
+  is_active    Boolean  @default(true) @map("is_active")
+  created_at   DateTime @default(now()) @map("created_at")
+
+  @@map("products")
+}
