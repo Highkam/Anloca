@@ -1,4 +1,4 @@
-import { Body, Controller, Delete, Get, Param, Post, ParseIntPipe, NotFoundException } from '@nestjs/common';
+import { Body, Controller, Delete, Get, Param, Post, ParseIntPipe, NotFoundException, UnauthorizedException, Req } from '@nestjs/common';
 import { ApiTags, ApiOperation, ApiResponse, ApiParam, ApiBadRequestResponse } from '@nestjs/swagger';
 import { CreateCartUseCase } from '../../../core/carts/application/usecases/create-cart.usecase';
 import { GetCartUseCase } from '../../../core/carts/application/usecases/get-cart.usecase';
@@ -25,7 +25,12 @@ export class CartController {
   @ApiOperation({ summary: 'Crear un carrito para un usuario' })
   @ApiResponse({ status: 201, description: 'Carrito creado exitosamente', type: CartDto })
   @ApiBadRequestResponse({ description: 'Datos inválidos al crear carrito' })
-  async create(@Body() dto: CreateCartDto) {
+  async create(@Body() dto: CreateCartDto, @Req() req?: any) {
+    const validatedUserId = req?.userId ?? null;
+    if (validatedUserId !== null && dto.userId !== validatedUserId) {
+      throw new UnauthorizedException('User id does not match session user');
+    }
+
     const cart = await this.createCart.execute(dto.userId);
     return CartMapper.toDto(cart);
   }
@@ -51,7 +56,6 @@ export class CartController {
   }
 
   @Get('user/:userId')
-  @sessionRequired()
   @ApiOperation({ summary: 'Listar todos los carritos de un usuario' })
   @ApiParam({ name: 'userId', type: Number })
   @ApiResponse({ status: 200, description: 'Lista de carritos', type: [CartDto] })
@@ -68,9 +72,15 @@ export class CartController {
   @ApiResponse({ status: 200, description: 'Carrito eliminado' })
   @ApiResponse({ status: 404, description: 'Carrito no encontrado' })
   @ApiBadRequestResponse({ description: 'ID inválido' })
-  async delete(@Param('id', ParseIntPipe) id: number) {
+  async delete(@Param('id', ParseIntPipe) id: number, @Req() req?: any) {
     const cart = await this.getCart.execute(id);
     if (!cart) throw new NotFoundException(`Cart con id ${id} no encontrado`);
+
+    const validatedUserId = req?.userId ?? null;
+    if (validatedUserId !== null && cart.userId !== validatedUserId) {
+      throw new UnauthorizedException('No tienes permiso para eliminar este carrito');
+    }
+
     await this.deleteCart.execute(id);
     return { message: `Cart con id ${id} eliminado` };
   }

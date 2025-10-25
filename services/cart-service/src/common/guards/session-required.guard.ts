@@ -9,8 +9,11 @@ export class SessionRequiredGuard implements CanActivate {
     const token = this.extractToken(req);
     if (!token) throw new UnauthorizedException('Session token missing');
 
-    const ok = await this.validateSession(token);
-    if (!ok) throw new UnauthorizedException('Invalid session token');
+    const id = await this.validateSession(token);
+    if (id === null) throw new UnauthorizedException('Invalid session token');
+
+    // attach validated user id to request for downstream handlers
+    (req as any).userId = id;
     return true;
   }
 
@@ -24,7 +27,8 @@ export class SessionRequiredGuard implements CanActivate {
     return undefined;
   }
 
-  private validateSession(token: string): Promise<boolean> {
+  // returns the user id if session valid, otherwise null
+  private validateSession(token: string): Promise<number | null> {
     const path = `/auth/session?token=${encodeURIComponent(token)}`;
     const options: http.RequestOptions = {
       hostname: 'localhost',
@@ -43,13 +47,18 @@ export class SessionRequiredGuard implements CanActivate {
         res.on('end', () => {
           try {
             const parsed = JSON.parse(data);
-            resolve(Boolean(parsed && parsed.valid === true));
+            if (parsed && parsed.valid === true) {
+              const id = typeof parsed.id === 'number' ? parsed.id : null;
+              resolve(id);
+            } else {
+              resolve(null);
+            }
           } catch (e) {
-            resolve(false);
+            resolve(null);
           }
         });
       });
-      req.on('error', () => resolve(false));
+      req.on('error', () => resolve(null));
       req.end();
     });
   }
