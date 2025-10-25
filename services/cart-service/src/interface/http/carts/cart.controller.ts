@@ -7,6 +7,7 @@ import { DeleteCartUseCase } from '../../../core/carts/application/usecases/dele
 import { CartDto } from '../../../core/carts/application/dto/cart.dto';
 import { CreateCartDto } from '../../../core/carts/application/dto/create-cart.dto';
 import { CartMapper } from '../../../core/carts/application/mappers/cart.mapper';
+import { sessionRequired } from '../../../common/decorators/session-required.decorator';
 
 @ApiTags('Carts')
 @Controller('carts')
@@ -20,6 +21,7 @@ export class CartController {
   ) {}
 
   @Post()
+  @sessionRequired()
   @ApiOperation({ summary: 'Crear un carrito para un usuario' })
   @ApiResponse({ status: 201, description: 'Carrito creado exitosamente', type: CartDto })
   @ApiBadRequestResponse({ description: 'Datos inválidos al crear carrito' })
@@ -49,6 +51,7 @@ export class CartController {
   }
 
   @Get('user/:userId')
+  @sessionRequired()
   @ApiOperation({ summary: 'Listar todos los carritos de un usuario' })
   @ApiParam({ name: 'userId', type: Number })
   @ApiResponse({ status: 200, description: 'Lista de carritos', type: [CartDto] })
@@ -59,6 +62,7 @@ export class CartController {
   }
 
   @Delete(':id')
+  @sessionRequired()
   @ApiOperation({ summary: 'Eliminar un carrito por ID' })
   @ApiParam({ name: 'id', type: Number })
   @ApiResponse({ status: 200, description: 'Carrito eliminado' })
