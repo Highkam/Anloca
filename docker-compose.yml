@@ -1,6 +1,9 @@
 services:
   postgres-catalog:
     image: postgres:15-alpine
+    dns:
+      - 8.8.8.8
+      - 8.8.4.4
     environment:
       POSTGRES_DB: catalog_db
       POSTGRES_USER: postgres
@@ -75,7 +78,7 @@ services:
       dockerfile: Dockerfile
     container_name: auth_service
     environment:
-      DATABASE_URL: "postgresql://developer:password123@postgres-auth:5432/myapp_dev?schema=public"
+      DATABASE_URL: "postgresql://developer:password123@postgres-auth:5431/myapp_dev?schema=public"
       NODE_ENV: production
       PORT: 3001
     ports:
@@ -91,7 +94,7 @@ services:
       dockerfile: Dockerfile
     container_name: cart_service
     environment:
-      DATABASE_URL: "postgresql://cart_user:cart_password@postgres-cart:5432/cart_db?schema=public"
+      DATABASE_URL: "postgresql://cart_user:cart_password@postgres-cart:5433/cart_db?schema=public"
       NODE_ENV: production
       PORT: 3006
     ports:

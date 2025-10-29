@@ -1,0 +1,12 @@
+import type { Config } from '@jest/types';
+
+const config: Config.InitialOptions = {
+  preset: 'ts-jest',
+  testEnvironment: 'node',
+  testMatch: ['**/tests/integration/**/*.spec.ts', '**/*.int.spec.ts'],
+  moduleFileExtensions: ['ts', 'js', 'json'],
+  setupFiles: ['dotenv/config'],
+  testTimeout: 60000, // integra servicios: dale aire
+  verbose: true,
+};
+export default config;
