@@ -1,0 +1,28 @@
+# node / build artifacts
+node_modules
+**/node_modules
+dist
+**/dist
+build
+coverage
+npm-debug.log
+# package-lock.json   <-- removed from ignore so Dockerfile can COPY it
+
+# local env / IDE
+.env
+.env.* 
+.vscode
+.idea
+
+# git
+.git
+.gitignore
+
+# OS
+.DS_Store
+Thumbs.db
+
+# logs and temp
+*.log
+tmp
+.cache
