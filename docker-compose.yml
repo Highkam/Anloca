@@ -1,0 +1,126 @@
+version: '3.8'
+
+services:
+  postgres-catalog:
+    image: postgres:15-alpine
+    environment:
+      POSTGRES_DB: catalog_db
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: password
+    ports:
+      - "5432:5432"
+    volumes:
+      - catalog_data:/var/lib/postgresql/data
+    networks:
+      - app-network
+
+  postgres-auth:
+    image: postgres:15-alpine
+    environment:
+      POSTGRES_DB: myapp_dev
+      POSTGRES_USER: developer
+      POSTGRES_PASSWORD: password123
+    ports:
+      - "5431:5432"
+    volumes:
+      - auth_data:/var/lib/postgresql/data
+    networks:
+      - app-network
+
+  postgres-cart:
+    image: postgres:15-alpine
+    environment:
+      POSTGRES_DB: cart_db
+      POSTGRES_USER: cart_user
+      POSTGRES_PASSWORD: cart_password
+    ports:
+      - "5433:5432"
+    volumes:
+      - cart_data:/var/lib/postgresql/data
+    networks:
+      - app-network
+
+  pgadmin:
+    image: dpage/pgadmin4
+    environment:
+      PGADMIN_DEFAULT_EMAIL: admin@localhost
+      PGADMIN_DEFAULT_PASSWORD: admin123
+    ports:
+      - "5050:80"
+    depends_on:
+      - postgres-catalog
+      - postgres-auth
+      - postgres-cart
+    networks:
+      - app-network
+
+  catalog:
+    build:
+      context: ./services/catalog-service
+      dockerfile: Dockerfile
+    container_name: catalog_service
+    environment:
+      DATABASE_URL: "postgresql://postgres:password@postgres-catalog:5432/catalog_db?schema=public"
+      NODE_ENV: production
+      PORT: 3000
+    ports:
+      - "3000:3000"
+    depends_on:
+      - postgres-catalog
+    networks:
+      - app-network
+
+  auth:
+    build:
+      context: ./services/auth-service
+      dockerfile: Dockerfile
+    container_name: auth_service
+    environment:
+      DATABASE_URL: "postgresql://developer:password123@postgres-auth:5432/myapp_dev?schema=public"
+      NODE_ENV: production
+      PORT: 3001
+    ports:
+      - "3001:3001"
+    depends_on:
+      - postgres-auth
+    networks:
+      - app-network
+
+  cart:
+    build:
+      context: ./services/cart-service
+      dockerfile: Dockerfile
+    container_name: cart_service
+    environment:
+      DATABASE_URL: "postgresql://cart_user:cart_password@postgres-cart:5432/cart_db?schema=public"
+      NODE_ENV: production
+      PORT: 3002
+    ports:
+      - "3002:3002"
+    depends_on:
+      - postgres-cart
+    networks:
+      - app-network
+
+  api-gateway:
+    image: nginx:stable-alpine
+    container_name: api_gateway
+    volumes:
+      - ./nginx/nginx.conf:/etc/nginx/nginx.conf:ro
+    ports:
+      - "80:80"
+    depends_on:
+      - catalog
+      - auth
+      - cart
+    networks:
+      - app-network
+
+volumes:
+  catalog_data:
+  auth_data:
+  cart_data:
+
+networks:
+  app-network:
+    driver: bridge

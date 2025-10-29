@@ -7,6 +7,7 @@ import { ListCartsUseCase, ListAllCartsUseCase } from '../../../core/carts/appli
 import { DeleteCartUseCase } from '../../../core/carts/application/usecases/delete-cart.usecase';
 import { CartController } from './cart.controller';
 import { PrismaModule } from '../../../infrastructure/prisma.module';
+import { AuthClientService } from '../../../infrastructure/auth.client';
 
 @Module({
   imports: [PrismaModule],
@@ -18,6 +19,7 @@ import { PrismaModule } from '../../../infrastructure/prisma.module';
     ListCartsUseCase,
     ListAllCartsUseCase,
     DeleteCartUseCase,
+    AuthClientService,
   ],
 })
 export class CartModule {}
