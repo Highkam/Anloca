@@ -3,7 +3,7 @@ FROM node:20-alpine AS deps
 WORKDIR /app
 COPY package*.json ./
 COPY package-lock.json ./
-RUN npm ci
+RUN npm install --silent
 
 FROM node:20-alpine AS builder
 WORKDIR /app
@@ -17,10 +17,10 @@ WORKDIR /app
 ENV NODE_ENV=production
 COPY package*.json ./
 COPY package-lock.json ./
-RUN npm ci --omit=dev
+RUN npm install --omit=dev --silent
 COPY --from=builder /app/dist ./dist
 COPY --from=builder /app/node_modules ./node_modules
-RUN addgroup -S node && adduser -S node -G node
+RUN addgroup -S node >/dev/null 2>&1 || true; adduser -S node -G node >/dev/null 2>&1 || true
 USER node
 
 EXPOSE 3000
