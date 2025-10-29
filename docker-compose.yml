@@ -6,7 +6,8 @@ services:
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: password
     ports:
-      - "5435:5432"   # <-- host 5435 evita conflicto con servicio local en 5432
+
+      - "5432:5432"   
     volumes:
       - catalog_data:/var/lib/postgresql/data
     networks:
@@ -19,7 +20,7 @@ services:
       POSTGRES_USER: developer
       POSTGRES_PASSWORD: password123
     ports:
-      - "5434:5432"   # <-- host 5434 evita conflicto con 5431 ocupado
+      - "5431:5432"  
     volumes:
       - auth_data:/var/lib/postgresql/data
     networks:
@@ -32,7 +33,7 @@ services:
       POSTGRES_USER: cart_user
       POSTGRES_PASSWORD: cart_password
     ports:
-      - "5436:5432"   # <-- host 5436 evita conflicto con 5433 ocupado
+      - "5433:5432"   
     volumes:
       - cart_data:/var/lib/postgresql/data
     networks:
@@ -92,9 +93,9 @@ services:
     environment:
       DATABASE_URL: "postgresql://cart_user:cart_password@postgres-cart:5432/cart_db?schema=public"
       NODE_ENV: production
-      PORT: 3002
+      PORT: 3006
     ports:
-      - "3002:3002"
+      - "3006:3006"
     depends_on:
       - postgres-cart
     networks:
