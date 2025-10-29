@@ -29,18 +29,21 @@ describe('Cart Service Integration (e2e)', () => {
   };
 
   beforeAll(async () => {
-    const moduleFixture: TestingModule = await Test.createTestingModule({
+    const builder = Test.createTestingModule({
       imports: [AppModule],
     })
-      .overrideProvider(SessionRequiredGuard)
-      .useValue(mockGuard)
       .overrideProvider(AuthClientService)
       .useValue(mockAuthClient)
       .overrideProvider(CatalogClientService)
       .useValue(mockCatalogClient)
-      .compile();
+      .overrideGuard(SessionRequiredGuard)
+      .useValue(mockGuard as any);
+
+    const moduleFixture: TestingModule = await builder.compile();
 
     app = moduleFixture.createNestApplication();
+    // apply mock guard globally to ensure real guard isn't executed
+    app.useGlobalGuards(mockGuard as any);
     await app.init();
 
     prisma = moduleFixture.get<PrismaService>(PrismaService);
