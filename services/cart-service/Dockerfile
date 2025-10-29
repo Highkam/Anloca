@@ -37,5 +37,4 @@ RUN addgroup -S node >/dev/null 2>&1 || true; adduser -S node -G node >/dev/null
 USER node
 
 EXPOSE 3002
-HEALTHCHECK --interval=30s --timeout=5s --start-period=10s --retries=3 CMD wget -qO- http://localhost:3002/ || exit 1
 CMD ["node", "dist/main"]
