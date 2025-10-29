@@ -17,7 +17,7 @@ spec:
     spec:
       containers:
       - name: auth-service
-        image: ghcr.io/highkam/auth-service:latest
+        image: docker.io/angelicampp/auth-service:latest
         imagePullPolicy: IfNotPresent
         ports:
         - containerPort: 3003

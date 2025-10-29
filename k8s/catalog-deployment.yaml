@@ -17,7 +17,7 @@ spec:
     spec:
       containers:
       - name: catalog-service
-        image: ghcr.io/highkam/catalog-service:latest
+        image: docker.io/angelicampp/catalog-service:latest
         imagePullPolicy: IfNotPresent
         ports:
         - containerPort: 3000
