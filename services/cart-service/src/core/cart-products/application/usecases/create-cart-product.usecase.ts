@@ -1,4 +1,4 @@
-import { Inject, Injectable, NotFoundException } from '@nestjs/common';
+import { Inject, Injectable, NotFoundException, BadRequestException } from '@nestjs/common';
 import { CART_REPOSITORY } from '../../../carts/application/tokens';
 import { CART_PRODUCT_REPOSITORY } from '../tokens';
 import type { CartProductRepositoryPort } from '../../domain/cart-product.repository.port';

@@ -1,4 +1,4 @@
-import { Body, Controller, Delete, Get, Param, Post, ParseIntPipe, NotFoundException, Headers } from '@nestjs/common';
+import { Body, Controller, Delete, Get, Param, Post, ParseIntPipe, NotFoundException, UnauthorizedException, Req, Headers } from '@nestjs/common';
 import { ApiTags, ApiOperation, ApiResponse, ApiParam, ApiBadRequestResponse } from '@nestjs/swagger';
 import { CreateCartUseCase } from '../../../core/carts/application/usecases/create-cart.usecase';
 import { GetCartUseCase } from '../../../core/carts/application/usecases/get-cart.usecase';
@@ -8,6 +8,7 @@ import { CartDto } from '../../../core/carts/application/dto/cart.dto';
 import { CreateCartDto } from '../../../core/carts/application/dto/create-cart.dto';
 import { CartMapper } from '../../../core/carts/application/mappers/cart.mapper';
 import { AuthClientService } from '../../../infrastructure/auth.client';
+import { sessionRequired } from '../../../common/decorators/session-required.decorator';
 
 @ApiTags('Carts')
 @Controller('carts')
@@ -22,6 +23,7 @@ export class CartController {
   ) {}
 
   @Post()
+  @sessionRequired()
   @ApiOperation({ summary: 'Crear un carrito para un usuario' })
   @ApiResponse({ status: 201, description: 'Carrito creado exitosamente', type: CartDto })
   @ApiBadRequestResponse({ description: 'Datos inválidos al crear carrito' })
@@ -68,14 +70,21 @@ export class CartController {
   }
 
   @Delete(':id')
+  @sessionRequired()
   @ApiOperation({ summary: 'Eliminar un carrito por ID' })
   @ApiParam({ name: 'id', type: Number })
   @ApiResponse({ status: 200, description: 'Carrito eliminado' })
   @ApiResponse({ status: 404, description: 'Carrito no encontrado' })
   @ApiBadRequestResponse({ description: 'ID inválido' })
-  async delete(@Param('id', ParseIntPipe) id: number) {
+  async delete(@Param('id', ParseIntPipe) id: number, @Req() req?: any) {
     const cart = await this.getCart.execute(id);
     if (!cart) throw new NotFoundException(`Cart con id ${id} no encontrado`);
+
+    const validatedUserId = req?.userId ?? null;
+    if (validatedUserId !== null && cart.userId !== validatedUserId) {
+      throw new UnauthorizedException('No tienes permiso para eliminar este carrito');
+    }
+
     await this.deleteCart.execute(id);
     return { message: `Cart con id ${id} eliminado` };
   }
