@@ -1,0 +1,9 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: anloca-config
+  namespace: anloca
+data:
+  AUTH_SERVICE_URL: "http://auth-service"
+  CATALOG_SERVICE_URL: "http://catalog-service"
+  CART_SERVICE_URL: "http://cart-service"
