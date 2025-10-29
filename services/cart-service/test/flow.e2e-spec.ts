@@ -7,14 +7,13 @@ import { PrismaService } from './../src/infrastructure/prisma.service';
 import { AuthClientService } from './../src/infrastructure/auth.client';
 import { CatalogClientService } from './../src/infrastructure/catalog.client';
 
-describe('Cart Service Integration (e2e)', () => {
+describe('Cart Service Flow Integration (e2e)', () => {
   let app: INestApplication;
   let prisma: PrismaService;
 
   const mockGuard = {
     canActivate: (context: ExecutionContext) => {
       const req = context.switchToHttp().getRequest();
-      // simulate a validated session user id = 1
       req.userId = 1;
       return true;
     },
@@ -42,19 +41,16 @@ describe('Cart Service Integration (e2e)', () => {
     const moduleFixture: TestingModule = await builder.compile();
 
     app = moduleFixture.createNestApplication();
-    // apply mock guard globally to ensure real guard isn't executed
     app.useGlobalGuards(mockGuard as any);
     await app.init();
 
     prisma = moduleFixture.get<PrismaService>(PrismaService);
 
-    // Clean tables before running (assumes DATABASE_URL is set to a test DB)
     await prisma.cartProduct.deleteMany();
     await prisma.cart.deleteMany();
   });
 
   afterAll(async () => {
-    // Clean up and close
     if (prisma) {
       await prisma.cartProduct.deleteMany();
       await prisma.cart.deleteMany();
@@ -63,40 +59,41 @@ describe('Cart Service Integration (e2e)', () => {
     if (app) await app.close();
   });
 
-  it('POST /carts -> create cart for userId 1', async () => {
-    const res = await request(app.getHttpServer())
+  it('full flow: create cart -> add product -> list -> delete product -> delete cart', async () => {
+    // 1) create cart
+    const createRes = await request(app.getHttpServer())
       .post('/carts')
       .send({ userId: 1 })
       .expect(201);
 
-    expect(res.body).toBeDefined();
-    expect(res.body.userId).toBe(1);
-    expect(typeof res.body.id).toBe('number');
-  });
+    expect(createRes.body).toBeDefined();
+    const cartId: number = createRes.body.id;
+    expect(createRes.body.userId).toBe(1);
 
-  it('POST /cart-products -> add product to cart, then GET and DELETE', async () => {
-    // create a cart via prisma directly to ensure we have a cartId
-    const created = await prisma.cart.create({ data: { userId: 1, state: 'open' } });
-    const cartId = created.id;
-
-    // add product (use productId 1 which exists in catalog seed or mocked)
+    // 2) add product
     const addRes = await request(app.getHttpServer())
       .post('/cart-products')
-      .send({ cartId, productId: 1, amount: 2 })
+      .send({ cartId, productId: 1, amount: 3 })
       .expect(201);
 
     expect(addRes.body).toBeDefined();
     expect(addRes.body.cartId).toBe(cartId);
     expect(addRes.body.productId).toBe(1);
 
-    // list products
+    // 3) list products
     const listRes = await request(app.getHttpServer()).get(`/cart-products/cart/${cartId}`).expect(200);
     expect(Array.isArray(listRes.body)).toBe(true);
-    expect(listRes.body.length).toBeGreaterThanOrEqual(1);
+    expect(listRes.body.find((p: any) => p.productId === 1)).toBeDefined();
 
-    // delete product
-    const delRes = await request(app.getHttpServer()).delete(`/cart-products/cart/${cartId}/product/1`).expect(200);
-    expect(delRes.body).toBeDefined();
-    expect(delRes.body.productId).toBe(1);
+    // 4) delete product
+    const delProductRes = await request(app.getHttpServer()).delete(`/cart-products/cart/${cartId}/product/1`).expect(200);
+    expect(delProductRes.body).toBeDefined();
+    expect(delProductRes.body.productId).toBe(1);
+
+    // 5) delete cart
+    await request(app.getHttpServer()).delete(`/carts/${cartId}`).expect(200);
+
+    // confirm deleted
+    await request(app.getHttpServer()).get(`/carts/${cartId}`).expect(404);
   });
 });

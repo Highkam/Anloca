@@ -9,6 +9,8 @@ import { PrismaCartRepository } from '../../../infrastructure/prisma/prisma-cart
 import { PrismaModule } from '../../../infrastructure/prisma.module';
 import { DeleteCartProductUseCase } from '../../../core/cart-products/application/usecases/delete-cart-product.usecase';
 import { CatalogService } from '../../../common/services/catalog.service';
+import { CatalogClientService } from '../../../infrastructure/catalog.client';
+import { AuthClientService } from '../../../infrastructure/auth.client';
 
 @Module({
   imports: [PrismaModule],
@@ -20,6 +22,8 @@ import { CatalogService } from '../../../common/services/catalog.service';
     DeleteCartProductUseCase,
     { provide: CART_REPOSITORY, useClass: PrismaCartRepository },
     CatalogService,
+    AuthClientService,
+    CatalogClientService,
   ],
 })
 export class CartProductModule {}
