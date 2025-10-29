@@ -4,6 +4,8 @@ import request from 'supertest';
 import { AppModule } from './../src/app.module';
 import { SessionRequiredGuard } from './../src/common/guards/session-required.guard';
 import { PrismaService } from './../src/infrastructure/prisma.service';
+import { AuthClientService } from './../src/infrastructure/auth.client';
+import { CatalogClientService } from './../src/infrastructure/catalog.client';
 
 describe('Cart Service Integration (e2e)', () => {
   let app: INestApplication;
@@ -18,12 +20,24 @@ describe('Cart Service Integration (e2e)', () => {
     },
   };
 
+  const mockAuthClient = {
+    getSession: async (_token?: string) => ({ id: 1 }),
+  };
+
+  const mockCatalogClient = {
+    getProduct: async (productId: number) => ({ id: productId, name: 'Mock Product' }),
+  };
+
   beforeAll(async () => {
     const moduleFixture: TestingModule = await Test.createTestingModule({
       imports: [AppModule],
     })
       .overrideProvider(SessionRequiredGuard)
       .useValue(mockGuard)
+      .overrideProvider(AuthClientService)
+      .useValue(mockAuthClient)
+      .overrideProvider(CatalogClientService)
+      .useValue(mockCatalogClient)
       .compile();
 
     app = moduleFixture.createNestApplication();
@@ -62,7 +76,7 @@ describe('Cart Service Integration (e2e)', () => {
     const created = await prisma.cart.create({ data: { userId: 1, state: 'open' } });
     const cartId = created.id;
 
-    // add product (use productId 1 which exists in catalog seed)
+    // add product (use productId 1 which exists in catalog seed or mocked)
     const addRes = await request(app.getHttpServer())
       .post('/cart-products')
       .send({ cartId, productId: 1, amount: 2 })
