@@ -28,9 +28,25 @@ async function bootstrap() {
 
   app.useGlobalFilters(new HttpExceptionFilter());
 
-  const port = Number(process.env.PORT) || 3000;
-  await app.listen(port);
-  console.log(`🚀 Catalog Service running on: ${await app.getUrl()}`);
-  console.log(`📚 Swagger available at: ${await app.getUrl()}/api/docs`);
+  const port = process.env.CATALOG_PORT || 3000;
+  let actualPort = port;
+  
+  try {
+    await app.listen(port);
+  } catch (error) {
+    if (error.code === 'EADDRINUSE') {
+      console.log(`⚠️ Port ${port} is busy, trying alternative port...`);
+      await app.listen(0);
+      actualPort = app.getHttpServer().address().port;
+    } else {
+      throw error;
+    }
+  }
+
+  console.log(`
+🚀 Catalog Service is running!
+📡 Server: http://localhost:${actualPort}
+📚 Swagger Docs: http://localhost:${actualPort}/api/docs
+  `);
 }
 bootstrap();
