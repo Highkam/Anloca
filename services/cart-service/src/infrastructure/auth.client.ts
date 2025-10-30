@@ -8,7 +8,7 @@ export class AuthClientService {
   private readonly logger = new Logger(AuthClientService.name);
 
   constructor() {
-    const baseURL = process.env.AUTH_URL || 'http://auth:3001';
+    const baseURL = 'http://auth:3001';
     this.client = axios.create({ baseURL, timeout: 3000 });
   }
 

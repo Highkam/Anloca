@@ -7,7 +7,7 @@ export class CatalogClientService {
   private readonly logger = new Logger(CatalogClientService.name);
 
   constructor() {
-    const baseURL = process.env.CATALOG_URL || 'http://catalog:3000';
+    const baseURL = 'http://catalog:3000';
     this.client = axios.create({ baseURL, timeout: 3000 });
   }
 

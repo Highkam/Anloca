@@ -1,9 +1,9 @@
 import request from 'supertest';
 
 // Base URLs for each microservice (adjust if running on different ports/hosts)
-const AUTH_URL = process.env.AUTH_URL || 'http://localhost:3003';
-const CATALOG_URL = process.env.CATALOG_URL || 'http://localhost:3000';
-const CART_URL = process.env.CART_URL || 'http://localhost:3002';
+const AUTH_URL = 'http://localhost:13001';
+const CATALOG_URL = 'http://localhost:13000';
+const CART_URL = 'http://localhost:13002';
 
 describe('End-to-End Integration: Auth, Catalog, Cart', () => {
   let sessionToken: string;

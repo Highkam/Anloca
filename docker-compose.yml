@@ -1,16 +1,43 @@
-version: '3.8'
+x-common-variables: &common-variables
+  # Catalog Database Variables
+  POSTGRES_CATALOG_DB: catalog_db
+  POSTGRES_CATALOG_USER: catalog_user
+  POSTGRES_CATALOG_PASSWORD: catalog_password
+  POSTGRES_CATALOG_HOST_PORT: 5432
+  CATALOG_DATABASE_URL: postgresql://catalog_user:catalog_password@postgres-catalog:5432/catalog_db
+  CATALOG_PORT: 3000
+
+  # Auth Database Variables
+  POSTGRES_AUTH_DB: auth_db
+  POSTGRES_AUTH_USER: auth_user
+  POSTGRES_AUTH_PASSWORD: auth_password
+  POSTGRES_AUTH_HOST_PORT: 5433
+  AUTH_DATABASE_URL: postgresql://auth_user:auth_password@postgres-auth:5432/auth_db
+  AUTH_PORT: 3001
+
+  # Cart Database Variables
+  POSTGRES_CART_DB: cart_db
+  POSTGRES_CART_USER: cart_user
+  POSTGRES_CART_PASSWORD: cart_password
+  POSTGRES_CART_HOST_PORT: 5434
+  CART_DATABASE_URL: postgresql://cart_user:cart_password@postgres-cart:5432/cart_db
+  CART_PORT: 3002
+
+  # PGAdmin Variables
+  PGADMIN_DEFAULT_EMAIL: admin@admin.com
+  PGADMIN_DEFAULT_PASSWORD: admin
 
 services:
-  # 🐘 Base de datos del catálogo
+  # Base de datos del catálogo
   postgres-catalog:
     image: postgres:15-alpine
     container_name: postgres_catalog
     environment:
-      POSTGRES_DB: ${POSTGRES_CATALOG_DB}
-      POSTGRES_USER: ${POSTGRES_CATALOG_USER}
-      POSTGRES_PASSWORD: ${POSTGRES_CATALOG_PASSWORD}
+      POSTGRES_DB: catalog_db
+      POSTGRES_USER: catalog_user
+      POSTGRES_PASSWORD: catalog_password
     ports:
-      - "${POSTGRES_CATALOG_HOST_PORT}:5432"
+      - "5432:5432"
     volumes:
       - catalog_data:/var/lib/postgresql/data
     networks:
@@ -21,16 +48,16 @@ services:
       timeout: 5s
       retries: 5
 
-  # 🐘 Base de datos del auth
+  # Base de datos del auth
   postgres-auth:
     image: postgres:15-alpine
     container_name: postgres_auth
     environment:
-      POSTGRES_DB: ${POSTGRES_AUTH_DB}
-      POSTGRES_USER: ${POSTGRES_AUTH_USER}
-      POSTGRES_PASSWORD: ${POSTGRES_AUTH_PASSWORD}
+      POSTGRES_DB: auth_db
+      POSTGRES_USER: auth_user
+      POSTGRES_PASSWORD: auth_password
     ports:
-      - "${POSTGRES_AUTH_HOST_PORT}:5432"
+      - "5433:5432"
     volumes:
       - auth_data:/var/lib/postgresql/data
     networks:
@@ -41,16 +68,16 @@ services:
       timeout: 5s
       retries: 5
 
-  # 🐘 Base de datos del carrito
+  # Base de datos del carrito
   postgres-cart:
     image: postgres:15-alpine
     container_name: postgres_cart
     environment:
-      POSTGRES_DB: ${POSTGRES_CART_DB}
-      POSTGRES_USER: ${POSTGRES_CART_USER}
-      POSTGRES_PASSWORD: ${POSTGRES_CART_PASSWORD}
+      POSTGRES_DB: cart_db
+      POSTGRES_USER: cart_user
+      POSTGRES_PASSWORD: cart_password
     ports:
-      - "${POSTGRES_CART_HOST_PORT}:5432"
+      - "5434:5432"
     volumes:
       - cart_data:/var/lib/postgresql/data
     networks:
@@ -61,13 +88,13 @@ services:
       timeout: 5s
       retries: 5
 
-  # 🧠 Panel PGAdmin (opcional, para debug)
+  # Panel PGAdmin
   pgadmin:
     image: dpage/pgadmin4
     container_name: pgadmin
     environment:
-      PGADMIN_DEFAULT_EMAIL: ${PGADMIN_DEFAULT_EMAIL}
-      PGADMIN_DEFAULT_PASSWORD: ${PGADMIN_DEFAULT_PASSWORD}
+      PGADMIN_DEFAULT_EMAIL: admin@admin.com
+      PGADMIN_DEFAULT_PASSWORD: admin
     ports:
       - "5050:80"
     depends_on:
@@ -87,60 +114,60 @@ services:
       dockerfile: Dockerfile
     container_name: catalog_service
     environment:
-      DATABASE_URL: ${CATALOG_DATABASE_URL}
+      DATABASE_URL: postgresql://catalog_user:catalog_password@postgres-catalog:5432/catalog_db
       NODE_ENV: production
-      PORT: ${CATALOG_PORT}
+      PORT: 3000
     ports:
-      - "${CATALOG_PORT}:${CATALOG_PORT}"
+      - "13000:3000"
     depends_on:
       postgres-catalog:
         condition: service_healthy
     networks:
       - app-network
 
-  # 🔐 Microservicio de autenticación
+  # Microservicio de autenticación
   auth:
     build:
       context: ./services/auth-service
       dockerfile: Dockerfile
     container_name: auth_service
     environment:
-      DATABASE_URL: ${AUTH_DATABASE_URL}
+      DATABASE_URL: postgresql://auth_user:auth_password@postgres-auth:5432/auth_db
       NODE_ENV: production
-      PORT: ${AUTH_PORT}
+      PORT: 3001
     ports:
-      - "${AUTH_PORT}:${AUTH_PORT}"
+      - "13001:3001"
     depends_on:
       postgres-auth:
         condition: service_healthy
     networks:
       - app-network
 
-  # 🛒 Microservicio de carrito
+  # Microservicio de carrito
   cart:
     build:
       context: ./services/cart-service
       dockerfile: Dockerfile
     container_name: cart_service
     environment:
-      DATABASE_URL: ${CART_DATABASE_URL}
+      DATABASE_URL: postgresql://cart_user:cart_password@postgres-cart:5432/cart_db
       NODE_ENV: production
-      PORT: ${CART_PORT}
+      PORT: 3002
     ports:
-      - "${CART_PORT}:${CART_PORT}"
+      - "13002:3002"
     depends_on:
       postgres-cart:
         condition: service_healthy
     networks:
       - app-network
 
-# 🧱 Volúmenes para persistencia
+# Volúmenes para persistencia
 volumes:
   catalog_data:
   auth_data:
   cart_data:
 
-# 🌐 Red compartida entre servicios
+# Red compartida entre servicios
 networks:
   app-network:
     driver: bridge

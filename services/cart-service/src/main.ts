@@ -24,7 +24,7 @@ async function bootstrap() {
   const document = SwaggerModule.createDocument(app, config);
   SwaggerModule.setup('api/docs', app, document);
 
-  const port = process.env.CART_PORT || 3002;
+  const port = 3002;
   let actualPort = port;
   
   try {

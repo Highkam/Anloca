@@ -4,7 +4,7 @@ ENV NPM_CONFIG_FUND=false \
     NPM_CONFIG_AUDIT=false
 COPY package*.json ./
 COPY package-lock.json ./
-RUN npm ci --silent
+RUN npm install --silent --no-audit --no-fund --prefer-offline
 
 FROM node:20-alpine AS builder
 WORKDIR /app

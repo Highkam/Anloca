@@ -28,7 +28,7 @@ async function bootstrap() {
 
   app.useGlobalFilters(new HttpExceptionFilter());
 
-  const port = process.env.CATALOG_PORT || 3000;
+  const port = 3000;
   let actualPort = port;
   
   try {

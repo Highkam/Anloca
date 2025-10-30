@@ -1,7 +1,7 @@
 import { Injectable, OnModuleInit, OnModuleDestroy } from '@nestjs/common';
 
 // Detectar si estamos ejecutando el CLI de Prisma (npx prisma ...)
-const isPrismaCli = process.argv.some(arg => /prisma/.test(String(arg))) || process.env.PRISMA_CLI === 'true';
+const isPrismaCli = process.argv.some(arg => /prisma/.test(String(arg)));
 
 // Cargar PrismaClient solo si NO estamos en el CLI de prisma (evita require en tiempo de generación)
 let PrismaClientImpl: any = undefined;

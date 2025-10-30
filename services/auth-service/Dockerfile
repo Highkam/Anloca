@@ -1,4 +1,3 @@
-# syntax=docker/dockerfile:1.6
 # Multi-stage Dockerfile for NestJS + Prisma (auth-service)
 FROM node:20-alpine AS deps
 WORKDIR /app

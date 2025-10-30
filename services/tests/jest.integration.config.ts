@@ -5,7 +5,7 @@ const config: Config.InitialOptions = {
   testEnvironment: 'node',
   testMatch: ['**/tests/integration/**/*.spec.ts', '**/*.int.spec.ts'],
   moduleFileExtensions: ['ts', 'js', 'json'],
-  setupFiles: ['dotenv/config'],
+  setupFiles: [],
   testTimeout: 60000, // integra servicios: dale aire
   verbose: true,
 };
