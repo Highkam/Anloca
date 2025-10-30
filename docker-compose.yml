@@ -118,7 +118,7 @@ services:
       NODE_ENV: production
       PORT: 3000
     ports:
-      - "13000:3000"
+      - "3000:3000"
     depends_on:
       postgres-catalog:
         condition: service_healthy
@@ -136,7 +136,7 @@ services:
       NODE_ENV: production
       PORT: 3001
     ports:
-      - "13001:3001"
+      - "3001:3001"
     depends_on:
       postgres-auth:
         condition: service_healthy
@@ -151,10 +151,11 @@ services:
     container_name: cart_service
     environment:
       DATABASE_URL: postgresql://cart_user:cart_password@postgres-cart:5432/cart_db
+      CART_DATABASE_URL: postgresql://cart_user:cart_password@postgres-cart:5432/cart_db
       NODE_ENV: production
       PORT: 3002
     ports:
-      - "13002:3002"
+      - "3002:3002"
     depends_on:
       postgres-cart:
         condition: service_healthy

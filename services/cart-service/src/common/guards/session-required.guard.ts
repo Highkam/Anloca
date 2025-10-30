@@ -32,7 +32,7 @@ export class SessionRequiredGuard implements CanActivate {
     const path = `/auth/session?token=${encodeURIComponent(token)}`;
     const options: http.RequestOptions = {
       hostname: 'localhost',
-      port: 3003,
+      port: 3001,
       path,
       method: 'GET',
       headers: {

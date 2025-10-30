@@ -37,4 +37,4 @@ USER node
 
 EXPOSE 3001
 HEALTHCHECK --interval=30s --timeout=5s --start-period=10s --retries=3 CMD wget -qO- http://localhost:3001/ || exit 1
-CMD ["sh", "-c", "npx prisma migrate deploy && (npx prisma db seed || true) && (node dist/main || node dist/src/main)"]
+ CMD ["sh", "-c", "npx prisma migrate deploy && (npx prisma db seed || true) && node dist/src/main"]
