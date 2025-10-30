@@ -13,7 +13,7 @@ export class CatalogClientService {
 
   async getProduct(productId: number): Promise<any | null> {
     try {
-      const res = await this.client.get(`/products/${productId}`);
+      const res = await this.client.get(`/api/products/${productId}`);
       return res.data;
     } catch (e) {
       this.logger.warn(`Failed to fetch product ${productId} from catalog`);

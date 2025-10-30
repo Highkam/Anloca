@@ -16,7 +16,7 @@ export class AuthClientService {
     try {
       const headers: any = {};
       if (token) headers['x-session-token'] = token;
-      const res = await this.client.get('/auth/session', { headers });
+      const res = await this.client.get('/api/auth/session', { headers });
       const data: any = res.data;
       return { id: data?.id ?? null };
     } catch (e) {

@@ -9,7 +9,13 @@ export class ProductPrismaRepository implements ProductRepository {
 
   async create(productData: Omit<Product, 'id_product' | 'created_at'>): Promise<Product> {
     const prismaProduct = await this.prisma.product.create({
-      data: productData,
+      data: {
+        name: (productData as any).name,
+        description: (productData as any).description ?? null,
+        price: (productData as any).price,
+        stock: (productData as any).stock,
+        category: (productData as any).category,
+      },
     });
 
     return this.toDomain(prismaProduct);
