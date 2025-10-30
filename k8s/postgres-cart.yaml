@@ -1,0 +1,45 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: postgres-cart
+  namespace: anloca
+spec:
+  selector:
+    matchLabels:
+      app: postgres-cart
+  template:
+    metadata:
+      labels:
+        app: postgres-cart
+    spec:
+      containers:
+      - name: postgres
+        image: postgres:15-alpine
+        env:
+        - name: POSTGRES_DB
+          value: cart_db
+        - name: POSTGRES_USER
+          value: postgres
+        - name: POSTGRES_PASSWORD
+          value: password
+        ports:
+        - containerPort: 5432
+        resources:
+          limits:
+            memory: "512Mi"
+            cpu: "500m"
+          requests:
+            memory: "256Mi"
+            cpu: "250m"
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: postgres-cart
+  namespace: anloca
+spec:
+  selector:
+    app: postgres-cart
+  ports:
+  - port: 5432
+    targetPort: 5432

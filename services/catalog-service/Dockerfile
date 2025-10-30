@@ -10,6 +10,7 @@ FROM node:20-alpine AS builder
 WORKDIR /app
 RUN apk add --no-cache openssl libc6-compat
 COPY --from=deps /app/node_modules ./node_modules
+COPY prisma ./prisma
 COPY tsconfig*.json ./
 COPY . .
 RUN npm run build && npx prisma generate || true

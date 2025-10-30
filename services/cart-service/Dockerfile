@@ -15,9 +15,7 @@ COPY --from=deps /app/node_modules ./node_modules
 COPY prisma ./prisma
 COPY tsconfig*.json ./
 COPY . .
-
-# generate prisma client and build
-RUN npx prisma generate || true
+RUN npx prisma generate
 RUN npm run build
 
 FROM node:20-alpine AS runner
@@ -37,9 +35,9 @@ COPY --from=builder /app/node_modules ./node_modules
 RUN mkdir -p /tmp/prisma && chown -R node:node /tmp/prisma /app /app/node_modules
 RUN --mount=type=cache,target=/root/.npm npm prune --omit=dev --silent --no-audit --no-fund
 COPY --from=builder /app/prisma ./prisma
-
-# Create non-root user
-RUN addgroup -S node >/dev/null 2>&1 || true; adduser -S node -G node >/dev/null 2>&1 || true
+RUN addgroup -S node >/dev/null 2>&1 || true && \
+    adduser -S node -G node >/dev/null 2>&1 || true && \
+    chown -R node:node /app
 USER node
 
 EXPOSE 3002
