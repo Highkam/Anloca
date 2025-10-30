@@ -1,6 +1,10 @@
+version: '3.8'
+
 services:
+  # 🐘 Base de datos del catálogo
   postgres-catalog:
     image: postgres:15-alpine
+    container_name: postgres_catalog
     environment:
       POSTGRES_DB: ${POSTGRES_CATALOG_DB}
       POSTGRES_USER: ${POSTGRES_CATALOG_USER}
@@ -11,9 +15,16 @@ services:
       - catalog_data:/var/lib/postgresql/data
     networks:
       - app-network
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_CATALOG_USER} -d ${POSTGRES_CATALOG_DB}"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
 
+  # 🐘 Base de datos del auth
   postgres-auth:
     image: postgres:15-alpine
+    container_name: postgres_auth
     environment:
       POSTGRES_DB: ${POSTGRES_AUTH_DB}
       POSTGRES_USER: ${POSTGRES_AUTH_USER}
@@ -24,9 +35,16 @@ services:
       - auth_data:/var/lib/postgresql/data
     networks:
       - app-network
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_AUTH_USER} -d ${POSTGRES_AUTH_DB}"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
 
+  # 🐘 Base de datos del carrito
   postgres-cart:
     image: postgres:15-alpine
+    container_name: postgres_cart
     environment:
       POSTGRES_DB: ${POSTGRES_CART_DB}
       POSTGRES_USER: ${POSTGRES_CART_USER}
@@ -37,21 +55,32 @@ services:
       - cart_data:/var/lib/postgresql/data
     networks:
       - app-network
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_CART_USER} -d ${POSTGRES_CART_DB}"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
 
+  # 🧠 Panel PGAdmin (opcional, para debug)
   pgadmin:
     image: dpage/pgadmin4
+    container_name: pgadmin
     environment:
       PGADMIN_DEFAULT_EMAIL: ${PGADMIN_DEFAULT_EMAIL}
       PGADMIN_DEFAULT_PASSWORD: ${PGADMIN_DEFAULT_PASSWORD}
     ports:
       - "5050:80"
     depends_on:
-      - postgres-catalog
-      - postgres-auth
-      - postgres-cart
+      postgres-catalog:
+        condition: service_healthy
+      postgres-auth:
+        condition: service_healthy
+      postgres-cart:
+        condition: service_healthy
     networks:
       - app-network
 
+  # 🛍️ Microservicio de catálogo
   catalog:
     build:
       context: ./services/catalog-service
@@ -64,10 +93,12 @@ services:
     ports:
       - "${CATALOG_PORT}:${CATALOG_PORT}"
     depends_on:
-      - postgres-catalog
+      postgres-catalog:
+        condition: service_healthy
     networks:
       - app-network
 
+  # 🔐 Microservicio de autenticación
   auth:
     build:
       context: ./services/auth-service
@@ -80,10 +111,12 @@ services:
     ports:
       - "${AUTH_PORT}:${AUTH_PORT}"
     depends_on:
-      - postgres-auth
+      postgres-auth:
+        condition: service_healthy
     networks:
       - app-network
 
+  # 🛒 Microservicio de carrito
   cart:
     build:
       context: ./services/cart-service
@@ -96,16 +129,18 @@ services:
     ports:
       - "${CART_PORT}:${CART_PORT}"
     depends_on:
-      - postgres-cart
+      postgres-cart:
+        condition: service_healthy
     networks:
       - app-network
 
-
+# 🧱 Volúmenes para persistencia
 volumes:
   catalog_data:
   auth_data:
   cart_data:
 
+# 🌐 Red compartida entre servicios
 networks:
   app-network:
     driver: bridge
