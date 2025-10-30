@@ -6,6 +6,7 @@ import { HttpExceptionFilter } from './infraestructure/common/filters/http-excep
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
+  app.setGlobalPrefix('api');
   
   // Swagger Configuration
   const config = new DocumentBuilder()
@@ -16,7 +17,7 @@ async function bootstrap() {
     .build();
   
   const document = SwaggerModule.createDocument(app, config);
-  SwaggerModule.setup('api', app, document);
+  SwaggerModule.setup('api/docs', app, document);
 
   // Global Pipes and Filters
   app.useGlobalPipes(new ValidationPipe({
@@ -27,8 +28,9 @@ async function bootstrap() {
 
   app.useGlobalFilters(new HttpExceptionFilter());
 
-  await app.listen(3000);
+  const port = Number(process.env.PORT) || 3000;
+  await app.listen(port);
   console.log(`🚀 Catalog Service running on: ${await app.getUrl()}`);
-  console.log(`📚 Swagger available at: ${await app.getUrl()}/api`);
+  console.log(`📚 Swagger available at: ${await app.getUrl()}/api/docs`);
 }
 bootstrap();

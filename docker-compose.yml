@@ -2,11 +2,11 @@ services:
   postgres-catalog:
     image: postgres:15-alpine
     environment:
-      POSTGRES_DB: catalog_db
-      POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: password
+      POSTGRES_DB: ${POSTGRES_CATALOG_DB}
+      POSTGRES_USER: ${POSTGRES_CATALOG_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_CATALOG_PASSWORD}
     ports:
-      - "5435:5432"   # <-- host 5435 evita conflicto con servicio local en 5432
+      - "${POSTGRES_CATALOG_HOST_PORT}:5432"
     volumes:
       - catalog_data:/var/lib/postgresql/data
     networks:
@@ -15,11 +15,11 @@ services:
   postgres-auth:
     image: postgres:15-alpine
     environment:
-      POSTGRES_DB: myapp_dev
-      POSTGRES_USER: developer
-      POSTGRES_PASSWORD: password123
+      POSTGRES_DB: ${POSTGRES_AUTH_DB}
+      POSTGRES_USER: ${POSTGRES_AUTH_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_AUTH_PASSWORD}
     ports:
-      - "5434:5432"   # <-- host 5434 evita conflicto con 5431 ocupado
+      - "${POSTGRES_AUTH_HOST_PORT}:5432"
     volumes:
       - auth_data:/var/lib/postgresql/data
     networks:
@@ -28,11 +28,11 @@ services:
   postgres-cart:
     image: postgres:15-alpine
     environment:
-      POSTGRES_DB: cart_db
-      POSTGRES_USER: cart_user
-      POSTGRES_PASSWORD: cart_password
+      POSTGRES_DB: ${POSTGRES_CART_DB}
+      POSTGRES_USER: ${POSTGRES_CART_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_CART_PASSWORD}
     ports:
-      - "5436:5432"   # <-- host 5436 evita conflicto con 5433 ocupado
+      - "${POSTGRES_CART_HOST_PORT}:5432"
     volumes:
       - cart_data:/var/lib/postgresql/data
     networks:
@@ -41,8 +41,8 @@ services:
   pgadmin:
     image: dpage/pgadmin4
     environment:
-      PGADMIN_DEFAULT_EMAIL: admin@localhost
-      PGADMIN_DEFAULT_PASSWORD: admin123
+      PGADMIN_DEFAULT_EMAIL: ${PGADMIN_DEFAULT_EMAIL}
+      PGADMIN_DEFAULT_PASSWORD: ${PGADMIN_DEFAULT_PASSWORD}
     ports:
       - "5050:80"
     depends_on:
@@ -58,11 +58,11 @@ services:
       dockerfile: Dockerfile
     container_name: catalog_service
     environment:
-      DATABASE_URL: "postgresql://postgres:password@postgres-catalog:5432/catalog_db?schema=public"
+      DATABASE_URL: ${CATALOG_DATABASE_URL}
       NODE_ENV: production
-      PORT: 3000
+      PORT: ${CATALOG_PORT}
     ports:
-      - "3000:3000"
+      - "${CATALOG_PORT}:${CATALOG_PORT}"
     depends_on:
       - postgres-catalog
     networks:
@@ -74,11 +74,11 @@ services:
       dockerfile: Dockerfile
     container_name: auth_service
     environment:
-      DATABASE_URL: "postgresql://developer:password123@postgres-auth:5432/myapp_dev?schema=public"
+      DATABASE_URL: ${AUTH_DATABASE_URL}
       NODE_ENV: production
-      PORT: 3001
+      PORT: ${AUTH_PORT}
     ports:
-      - "3001:3001"
+      - "${AUTH_PORT}:${AUTH_PORT}"
     depends_on:
       - postgres-auth
     networks:
@@ -90,29 +90,16 @@ services:
       dockerfile: Dockerfile
     container_name: cart_service
     environment:
-      DATABASE_URL: "postgresql://cart_user:cart_password@postgres-cart:5432/cart_db?schema=public"
+      DATABASE_URL: ${CART_DATABASE_URL}
       NODE_ENV: production
-      PORT: 3002
+      PORT: ${CART_PORT}
     ports:
-      - "3002:3002"
+      - "${CART_PORT}:${CART_PORT}"
     depends_on:
       - postgres-cart
     networks:
       - app-network
 
-  api-gateway:
-    image: nginx:stable-alpine
-    container_name: api_gateway
-    volumes:
-      - ./nginx/nginx.conf:/etc/nginx/nginx.conf:ro
-    ports:
-      - "80:80"
-    depends_on:
-      - catalog
-      - auth
-      - cart
-    networks:
-      - app-network
 
 volumes:
   catalog_data:
