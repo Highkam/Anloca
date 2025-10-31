@@ -25,7 +25,7 @@ describe('AppController', () => {
   });
 
   // Nuevo: tests de integración DB <-> LoginUseCase (solo si INTEGRATION_TEST=true)
-  const runIntegration = false;
+  const runIntegration = process.env.INTEGRATION_TEST === 'true';
   const integrationDescribe = runIntegration ? describe : describe.skip;
 
   integrationDescribe('Integration: Prisma <-> LoginUseCase', () => {

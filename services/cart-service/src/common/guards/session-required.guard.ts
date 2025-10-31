@@ -29,11 +29,10 @@ export class SessionRequiredGuard implements CanActivate {
 
   // returns the user id if session valid, otherwise null
   private validateSession(token: string): Promise<number | null> {
-    // ✅ CORREGIDO: Usar el nombre del servicio en Docker y agregar /api
-    const path = `/api/auth/session?token=${encodeURIComponent(token)}`;
+    const path = `/auth/session?token=${encodeURIComponent(token)}`;
     const options: http.RequestOptions = {
-      hostname: 'auth',  // ← Cambio aquí: nombre del servicio en docker-compose
-      port: 3001,
+      hostname: 'localhost',
+      port: 3003,
       path,
       method: 'GET',
       headers: {
@@ -59,10 +58,7 @@ export class SessionRequiredGuard implements CanActivate {
           }
         });
       });
-      req.on('error', (err) => {
-        console.error('Error validating session:', err.message);
-        resolve(null);
-      });
+      req.on('error', () => resolve(null));
       req.end();
     });
   }

@@ -1,9 +1,9 @@
 import { registerAs } from '@nestjs/config';
 
 export default registerAs('database', () => ({
-  host: 'postgres-catalog',
-  port: 5432,
-  username: 'catalog_user',
-  password: 'catalog_password',
-  database: 'catalog_db',
+  host: process.env.DB_HOST || 'localhost',
+  port: parseInt(process.env.DB_PORT ?? '5432', 10),
+  username: process.env.DB_USERNAME || 'developer',
+  password: process.env.DB_PASSWORD || 'password123',
+  database: process.env.DB_NAME || 'catalog_db',
 }));
