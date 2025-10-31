@@ -1,6 +1,8 @@
 import { Body, Controller, Post, Get, Headers, Query } from '@nestjs/common';
 import { ApiTags, ApiResponse, ApiProperty } from '@nestjs/swagger';
 import { LoginUseCase } from '../application/use-cases/login.use-case';
+import { CreateUserDto } from '../dto/create-user.dto'; 
+import { RegisterUseCase } from '../application/use-cases/register.use-case'; 
 
 class LoginDto {
   @ApiProperty({ example: 'user@example.com' })
@@ -34,7 +36,10 @@ class SessionStatusDto {
 @ApiTags('auth')
 @Controller('auth')
 export class AuthController {
-  constructor(private readonly loginUseCase: LoginUseCase) {}
+  constructor(
+    private readonly loginUseCase: LoginUseCase,
+    private readonly registerUseCase: RegisterUseCase
+  ) {}
 
   @Post('login')
   @ApiResponse({ status: 200, description: 'Login result', type: LoginResponseDto })
@@ -73,5 +78,12 @@ export class AuthController {
       return { valid: id !== null, id };
     }
     return { valid: false, id: null };
+  }
+
+  @Post('register')
+  @ApiResponse({ status: 201, description: 'Usuario creado' })
+  async register(@Body() dto: CreateUserDto) {
+    const user = await this.registerUseCase.registerUser(dto);
+    return user;
   }
 }
