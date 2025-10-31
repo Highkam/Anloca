@@ -8,5 +8,13 @@ const config: Config.InitialOptions = {
   setupFiles: [],
   testTimeout: 60000, // integra servicios: dale aire
   verbose: true,
+  globals: {
+    'ts-jest': {
+      tsconfig: {
+        esModuleInterop: true,
+        allowSyntheticDefaultImports: true,
+      },
+    },
+  },
 };
 export default config;
