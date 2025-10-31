@@ -6,6 +6,7 @@ import { HttpExceptionFilter } from './infraestructure/common/filters/http-excep
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
+  app.setGlobalPrefix('api');
   
   // Swagger Configuration
   const config = new DocumentBuilder()
@@ -16,7 +17,7 @@ async function bootstrap() {
     .build();
   
   const document = SwaggerModule.createDocument(app, config);
-  SwaggerModule.setup('api', app, document);
+  SwaggerModule.setup('api/docs', app, document);
 
   // Global Pipes and Filters
   app.useGlobalPipes(new ValidationPipe({
@@ -27,8 +28,25 @@ async function bootstrap() {
 
   app.useGlobalFilters(new HttpExceptionFilter());
 
-  await app.listen(3000);
-  console.log(`🚀 Catalog Service running on: ${await app.getUrl()}`);
-  console.log(`📚 Swagger available at: ${await app.getUrl()}/api`);
+  const port = 3000;
+  let actualPort = port;
+  
+  try {
+    await app.listen(port);
+  } catch (error) {
+    if (error.code === 'EADDRINUSE') {
+      console.log(`⚠️ Port ${port} is busy, trying alternative port...`);
+      await app.listen(0);
+      actualPort = app.getHttpServer().address().port;
+    } else {
+      throw error;
+    }
+  }
+
+  console.log(`
+🚀 Catalog Service is running!
+📡 Server: http://localhost:${actualPort}
+📚 Swagger Docs: http://localhost:${actualPort}/api/docs
+  `);
 }
 bootstrap();

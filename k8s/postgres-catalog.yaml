@@ -1,0 +1,45 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: postgres-catalog
+  namespace: anloca
+spec:
+  selector:
+    matchLabels:
+      app: postgres-catalog
+  template:
+    metadata:
+      labels:
+        app: postgres-catalog
+    spec:
+      containers:
+      - name: postgres
+        image: postgres:15-alpine
+        env:
+        - name: POSTGRES_DB
+          value: catalog_db
+        - name: POSTGRES_USER
+          value: postgres
+        - name: POSTGRES_PASSWORD
+          value: password
+        ports:
+        - containerPort: 5432
+        resources:
+          limits:
+            memory: "512Mi"
+            cpu: "500m"
+          requests:
+            memory: "256Mi"
+            cpu: "250m"
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: postgres-catalog
+  namespace: anloca
+spec:
+  selector:
+    app: postgres-catalog
+  ports:
+  - port: 5432
+    targetPort: 5432

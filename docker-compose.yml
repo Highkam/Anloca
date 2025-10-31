@@ -1,124 +1,174 @@
+x-common-variables: &common-variables
+  # Catalog Database Variables
+  POSTGRES_CATALOG_DB: catalog_db
+  POSTGRES_CATALOG_USER: catalog_user
+  POSTGRES_CATALOG_PASSWORD: catalog_password
+  POSTGRES_CATALOG_HOST_PORT: 5432
+  CATALOG_DATABASE_URL: postgresql://catalog_user:catalog_password@postgres-catalog:5432/catalog_db
+  CATALOG_PORT: 3000
+
+  # Auth Database Variables
+  POSTGRES_AUTH_DB: auth_db
+  POSTGRES_AUTH_USER: auth_user
+  POSTGRES_AUTH_PASSWORD: auth_password
+  POSTGRES_AUTH_HOST_PORT: 5433
+  AUTH_DATABASE_URL: postgresql://auth_user:auth_password@postgres-auth:5432/auth_db
+  AUTH_PORT: 3001
+
+  # Cart Database Variables
+  POSTGRES_CART_DB: cart_db
+  POSTGRES_CART_USER: cart_user
+  POSTGRES_CART_PASSWORD: cart_password
+  POSTGRES_CART_HOST_PORT: 5434
+  CART_DATABASE_URL: postgresql://cart_user:cart_password@postgres-cart:5432/cart_db
+  CART_PORT: 3002
+
+  # PGAdmin Variables
+  PGADMIN_DEFAULT_EMAIL: admin@admin.com
+  PGADMIN_DEFAULT_PASSWORD: admin
+
 services:
+  # Base de datos del catálogo
   postgres-catalog:
     image: postgres:15-alpine
+    container_name: postgres_catalog
     environment:
       POSTGRES_DB: catalog_db
-      POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: password
+      POSTGRES_USER: catalog_user
+      POSTGRES_PASSWORD: catalog_password
     ports:
-      - "5435:5432"   # <-- host 5435 evita conflicto con servicio local en 5432
+      - "5432:5432"
     volumes:
       - catalog_data:/var/lib/postgresql/data
     networks:
       - app-network
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_CATALOG_USER} -d ${POSTGRES_CATALOG_DB}"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
 
+  # Base de datos del auth
   postgres-auth:
     image: postgres:15-alpine
+    container_name: postgres_auth
     environment:
-      POSTGRES_DB: myapp_dev
-      POSTGRES_USER: developer
-      POSTGRES_PASSWORD: password123
+      POSTGRES_DB: auth_db
+      POSTGRES_USER: auth_user
+      POSTGRES_PASSWORD: auth_password
     ports:
-      - "5434:5432"   # <-- host 5434 evita conflicto con 5431 ocupado
+      - "5433:5432"
     volumes:
       - auth_data:/var/lib/postgresql/data
     networks:
       - app-network
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_AUTH_USER} -d ${POSTGRES_AUTH_DB}"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
 
+  # Base de datos del carrito
   postgres-cart:
     image: postgres:15-alpine
+    container_name: postgres_cart
     environment:
       POSTGRES_DB: cart_db
       POSTGRES_USER: cart_user
       POSTGRES_PASSWORD: cart_password
     ports:
-      - "5436:5432"   # <-- host 5436 evita conflicto con 5433 ocupado
+      - "5434:5432"
     volumes:
       - cart_data:/var/lib/postgresql/data
     networks:
       - app-network
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_CART_USER} -d ${POSTGRES_CART_DB}"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
 
+  # Panel PGAdmin
   pgadmin:
     image: dpage/pgadmin4
+    container_name: pgadmin
     environment:
-      PGADMIN_DEFAULT_EMAIL: admin@localhost
-      PGADMIN_DEFAULT_PASSWORD: admin123
+      PGADMIN_DEFAULT_EMAIL: admin@admin.com
+      PGADMIN_DEFAULT_PASSWORD: admin
     ports:
       - "5050:80"
     depends_on:
-      - postgres-catalog
-      - postgres-auth
-      - postgres-cart
+      postgres-catalog:
+        condition: service_healthy
+      postgres-auth:
+        condition: service_healthy
+      postgres-cart:
+        condition: service_healthy
     networks:
       - app-network
 
+  # 🛍️ Microservicio de catálogo
   catalog:
     build:
       context: ./services/catalog-service
       dockerfile: Dockerfile
     container_name: catalog_service
     environment:
-      DATABASE_URL: "postgresql://postgres:password@postgres-catalog:5432/catalog_db?schema=public"
+      DATABASE_URL: postgresql://catalog_user:catalog_password@postgres-catalog:5432/catalog_db
       NODE_ENV: production
       PORT: 3000
     ports:
       - "3000:3000"
     depends_on:
-      - postgres-catalog
+      postgres-catalog:
+        condition: service_healthy
     networks:
       - app-network
 
+  # Microservicio de autenticación
   auth:
     build:
       context: ./services/auth-service
       dockerfile: Dockerfile
     container_name: auth_service
     environment:
-      DATABASE_URL: "postgresql://developer:password123@postgres-auth:5432/myapp_dev?schema=public"
+      DATABASE_URL: postgresql://auth_user:auth_password@postgres-auth:5432/auth_db
       NODE_ENV: production
       PORT: 3001
     ports:
       - "3001:3001"
     depends_on:
-      - postgres-auth
+      postgres-auth:
+        condition: service_healthy
     networks:
       - app-network
 
+  # Microservicio de carrito
   cart:
     build:
       context: ./services/cart-service
       dockerfile: Dockerfile
     container_name: cart_service
     environment:
-      DATABASE_URL: "postgresql://cart_user:cart_password@postgres-cart:5432/cart_db?schema=public"
+      DATABASE_URL: postgresql://cart_user:cart_password@postgres-cart:5432/cart_db
+      CART_DATABASE_URL: postgresql://cart_user:cart_password@postgres-cart:5432/cart_db
       NODE_ENV: production
       PORT: 3002
     ports:
       - "3002:3002"
     depends_on:
-      - postgres-cart
+      postgres-cart:
+        condition: service_healthy
     networks:
       - app-network
 
-  api-gateway:
-    image: nginx:stable-alpine
-    container_name: api_gateway
-    volumes:
-      - ./nginx/nginx.conf:/etc/nginx/nginx.conf:ro
-    ports:
-      - "80:80"
-    depends_on:
-      - catalog
-      - auth
-      - cart
-    networks:
-      - app-network
-
+# Volúmenes para persistencia
 volumes:
   catalog_data:
   auth_data:
   cart_data:
 
+# Red compartida entre servicios
 networks:
   app-network:
     driver: bridge

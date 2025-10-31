@@ -1,5 +1,5 @@
 import { Body, Controller, Delete, Get, Param, Post, ParseIntPipe, NotFoundException, UnauthorizedException, Req, Headers } from '@nestjs/common';
-import { ApiTags, ApiOperation, ApiResponse, ApiParam, ApiBadRequestResponse } from '@nestjs/swagger';
+import { ApiTags, ApiOperation, ApiResponse, ApiParam, ApiBadRequestResponse, ApiHeader } from '@nestjs/swagger';
 import { CreateCartUseCase } from '../../../core/carts/application/usecases/create-cart.usecase';
 import { GetCartUseCase } from '../../../core/carts/application/usecases/get-cart.usecase';
 import { ListCartsUseCase, ListAllCartsUseCase } from '../../../core/carts/application/usecases/list-cart.usecase';
@@ -25,10 +25,10 @@ export class CartController {
   @Post()
   @sessionRequired()
   @ApiOperation({ summary: 'Crear un carrito para un usuario' })
+  @ApiHeader({ name: 'x-session-token', description: 'Token de sesión', required: false })
   @ApiResponse({ status: 201, description: 'Carrito creado exitosamente', type: CartDto })
   @ApiBadRequestResponse({ description: 'Datos inválidos al crear carrito' })
   async create(@Body() dto: CreateCartDto, @Headers('x-session-token') sessionToken?: string) {
-    // Si el cliente envía un token de sesión, consultamos el servicio de auth para resolver el id del usuario
     let userId = dto.userId ?? null;
     if (sessionToken) {
       const session = await this.authClient.getSession(sessionToken);
@@ -72,6 +72,7 @@ export class CartController {
   @Delete(':id')
   @sessionRequired()
   @ApiOperation({ summary: 'Eliminar un carrito por ID' })
+  @ApiHeader({ name: 'x-session-token', description: 'Token de sesión', required: true })
   @ApiParam({ name: 'id', type: Number })
   @ApiResponse({ status: 200, description: 'Carrito eliminado' })
   @ApiResponse({ status: 404, description: 'Carrito no encontrado' })
