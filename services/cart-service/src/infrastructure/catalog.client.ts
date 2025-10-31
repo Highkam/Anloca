@@ -13,10 +13,15 @@ export class CatalogClientService {
 
   async getProduct(productId: number): Promise<any | null> {
     try {
+      this.logger.debug(`Fetching product ${productId} from catalog service`);
       const res = await this.client.get(`/api/products/${productId}`);
+      this.logger.debug(`Product ${productId} found: ${JSON.stringify(res.data)}`);
       return res.data;
-    } catch (e) {
-      this.logger.warn(`Failed to fetch product ${productId} from catalog`);
+    } catch (e: any) {
+      this.logger.warn(`Failed to fetch product ${productId} from catalog: ${e.message}`);
+      if (e.response) {
+        this.logger.warn(`Response status: ${e.response.status}`);
+      }
       return null;
     }
   }
