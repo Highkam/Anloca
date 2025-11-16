@@ -10,6 +10,8 @@
 
 @layer base {
   :root {
+    --font-geist-sans: '__GeistSans_fb8f2c', '__GeistSans_Fallback_fb8f2c';
+    --font-geist-mono: '__GeistMono_f910ec', '__GeistMono_Fallback_f910ec';
     --font-sans: var(--font-geist-sans);
     --font-mono: var(--font-geist-mono);
     --background: 0 0% 100%;
@@ -88,5 +90,6 @@
   }
   body {
     @apply bg-background text-foreground;
+    font-family: var(--font-geist-sans), sans-serif;
   }
 }

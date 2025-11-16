@@ -13,11 +13,13 @@ import { Label } from "@/core/ui/label"
 import { Switch } from "@/core/ui/switch"
 import { Separator } from "@/core/ui/separator"
 import { toast } from "@/core/hooks/use-toast"
+import { useCart } from "@/core/cart/cart-context"
 
 export default function SettingsPage() {
   const [emailNotifications, setEmailNotifications] = useState(true)
   const [pushNotifications, setPushNotifications] = useState(false)
   const [marketingEmails, setMarketingEmails] = useState(true)
+  const { cartItems } = useCart()
 
   const handleSaveSettings = () => {
     toast({
@@ -29,14 +31,14 @@ export default function SettingsPage() {
   return (
     <div className="flex min-h-screen bg-[#fcfdfd]">
       {/* Sidebar */}
-      <aside className="w-64 border-r px-6 py-8">
+      <aside className="w-50 border-r px-6 py-8 bg-[#f8f9fa]/95">
         <div className="mb-8">
           <Image
-            src="https://hebbkx1anhila5yf.public.blob.vercel-storage.com/fs-OQzXWiKsdo0mSCzNZyZmZHXxrCi0Bp.png"
-            alt="Fashion Store"
-            width={150}
-            height={40}
-            className="h-10 w-auto"
+            src="/images/anloca-logo.svg"
+            alt="Anloca"
+            width={200}
+            height={60}
+            className="h-20 w-auto"
           />
         </div>
         <nav className="space-y-6">
@@ -56,23 +58,23 @@ export default function SettingsPage() {
           </Link>
           <Link
             href="/settings"
-            className="flex items-center gap-3 rounded-lg bg-[#e0e5ce] px-3 py-2 text-[#415444] transition-colors"
+            className="flex items-center gap-3 rounded-lg bg-[#a656bc] px-3 py-2 text-white transition-colors"
           >
             <Settings className="h-5 w-5" />
             Settings
           </Link>
           <Link
-            href="#"
-            className="flex items-center gap-3 px-3 py-2 text-gray-500 transition-colors hover:text-gray-900"
-          >
-            <Mail className="h-5 w-5" />
-            Message
-          </Link>
-          <Link
             href="/cart"
             className="flex items-center gap-3 px-3 py-2 text-gray-500 transition-colors hover:text-gray-900"
           >
-            <ShoppingBag className="h-5 w-5" />
+            <div className="relative">
+              <ShoppingBag className="h-5 w-5" />
+              {cartItems.length > 0 && (
+                <span className="absolute -top-2 -right-2 bg-[#a656bc] text-white text-xs rounded-full h-5 w-5 flex items-center justify-center">
+                  {cartItems.reduce((total, item) => total + item.quantity, 0)}
+                </span>
+              )}
+            </div>
             My Cart
           </Link>
           <Link

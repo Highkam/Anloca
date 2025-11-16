@@ -1,47 +1,18 @@
 "use client"
 
-import { Bell, Home, LogOut, Mail, Search, Settings, ShoppingBag, User2 } from 'lucide-react'
+import { Bell, Home, LogOut, Search, Settings, ShoppingBag, User2 } from 'lucide-react'
 import Image from "next/image"
 import Link from "next/link"
-import { useCallback, useState } from "react"
 
 import { Avatar, AvatarFallback, AvatarImage } from "@/core/ui/avatar"
 import { Button } from "@/core/ui/button"
 import { Card, CardContent, CardHeader } from "@/core/ui/card"
 import { Input } from "@/core/ui/input"
 import { Separator } from "@/core/ui/separator"
-import { toast } from "@/core/hooks/use-toast"
-
-interface CartItem {
-  id: string
-  name: string
-  price: number
-  size: string
-  quantity: number
-  image: string
-}
+import { useCart } from "@/core/cart/cart-context"
 
 export default function Component() {
-  const [cartItems, setCartItems] = useState<CartItem[]>([
-    {
-      id: "1",
-      name: "Monocle Canvas Tote Bag",
-      price: 213.99,
-      size: "L",
-      quantity: 1,
-      image:
-        "https://hebbkx1anhila5yf.public.blob.vercel-storage.com/The%20Best%20Media%20Tote%20Bags,%20Ranked.jpg-z2O2nGPSTrjey8xEM1cc5aTI2ggjXE.jpeg",
-    },
-    {
-      id: "2",
-      name: "Square One District Tote",
-      price: 189.99,
-      size: "M",
-      quantity: 1,
-      image:
-        "https://hebbkx1anhila5yf.public.blob.vercel-storage.com/Index,%20Vanderbrand.jpg-Fv7HHkBaQgZe7HG3hbz5aojPoFRIuo.jpeg",
-    },
-  ])
+  const { cartItems, addToCart, updateQuantity, calculateTotal, isCartOpen, setIsCartOpen } = useCart()
 
   const popularItems = [
     {
@@ -70,67 +41,25 @@ export default function Component() {
     },
   ]
 
-  const updateQuantity = useCallback((itemId: string, change: number) => {
-    setCartItems(
-      (prevItems) =>
-        prevItems
-          .map((item) => {
-            if (item.id === itemId) {
-              const newQuantity = Math.max(0, item.quantity + change)
-              if (newQuantity === 0) {
-                toast({
-                  title: "Item removed",
-                  description: `${item.name} has been removed from your cart.`,
-                })
-                return null
-              }
-              return { ...item, quantity: newQuantity }
-            }
-            return item
-          })
-          .filter(Boolean) as CartItem[],
-    )
-  }, [])
-
-  const addToCart = useCallback((item: (typeof popularItems)[0]) => {
-    setCartItems((prevItems) => {
-      const existingItem = prevItems.find((cartItem) => cartItem.id === item.id)
-      if (existingItem) {
-        return prevItems.map((cartItem) =>
-          cartItem.id === item.id ? { ...cartItem, quantity: cartItem.quantity + 1 } : cartItem,
-        )
-      }
-      toast({
-        title: "Item added to cart",
-        description: `${item.name} has been added to your cart.`,
-      })
-      return [...prevItems, { ...item, quantity: 1, size: "M" }]
-    })
-  }, [])
-
-  const calculateTotal = useCallback((items: CartItem[]) => {
-    return items.reduce((total, item) => total + item.price * item.quantity, 0)
-  }, [])
-
-  const cartTotal = calculateTotal(cartItems)
+  const cartTotal = calculateTotal()
 
   return (
     <div className="flex min-h-screen bg-[#fcfdfd]">
       {/* Sidebar */}
-      <aside className="w-64 border-r px-6 py-8">
+      <aside className="w-50 border-r px-6 py-8 bg-[#f8f9fa]/95">
         <div className="mb-8">
           <Image
-            src="https://hebbkx1anhila5yf.public.blob.vercel-storage.com/fs-OQzXWiKsdo0mSCzNZyZmZHXxrCi0Bp.png"
-            alt="Fashion Store"
-            width={150}
-            height={40}
-            className="h-10 w-auto"
+            src="/images/anloca-logo.svg"
+            alt="Anloca"
+            width={200}
+            height={60}
+            className="h-20 w-auto"
           />
         </div>
         <nav className="space-y-6">
           <Link
             href="/"
-            className="flex items-center gap-3 rounded-lg bg-[#e0e5ce] px-3 py-2 text-[#415444] transition-colors"
+            className="flex items-center gap-3 rounded-lg bg-[#a656bc] px-3 py-2 text-white transition-colors"
           >
             <Home className="h-5 w-5" />
             Dashboard
@@ -149,20 +78,20 @@ export default function Component() {
             <Settings className="h-5 w-5" />
             Settings
           </Link>
-          <Link
-            href="#"
-            className="flex items-center gap-3 px-3 py-2 text-gray-500 transition-colors hover:text-gray-900"
+          <button
+            onClick={() => setIsCartOpen(true)}
+            className="flex items-center gap-3 px-3 py-2 text-gray-500 transition-colors hover:text-gray-900 w-full text-left"
           >
-            <Mail className="h-5 w-5" />
-            Message
-          </Link>
-          <Link
-            href="/cart"
-            className="flex items-center gap-3 px-3 py-2 text-gray-500 transition-colors hover:text-gray-900"
-          >
-            <ShoppingBag className="h-5 w-5" />
+            <div className="relative">
+              <ShoppingBag className="h-5 w-5" />
+              {cartItems.length > 0 && (
+                <span className="absolute -top-2 -right-2 bg-[#a656bc] text-white text-xs rounded-full h-5 w-5 flex items-center justify-center">
+                  {cartItems.reduce((total, item) => total + item.quantity, 0)}
+                </span>
+              )}
+            </div>
             My Cart
-          </Link>
+          </button>
           <Link
             href="/support"
             className="flex items-center gap-3 px-3 py-2 text-gray-500 transition-colors hover:text-gray-900"
@@ -185,17 +114,30 @@ export default function Component() {
         <header className="mb-8 flex items-center justify-between">
           <div className="space-y-1">
             <h2 className="text-2xl font-semibold">
-              Hi, Dollar! <span className="ml-1">👋</span>
+              Hi, User! <span className="ml-1"></span>
             </h2>
             <p className="text-gray-500">Welcome Back</p>
           </div>
           <div className="flex items-center gap-6">
             <div className="relative">
               <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-400" />
-              <Input className="w-64 pl-10" placeholder="Search destination" />
+              <Input className="w-64 pl-10" placeholder="Search for bags" />
             </div>
             <Button size="icon" variant="ghost">
               <Bell className="h-5 w-5" />
+            </Button>
+            <Button 
+              size="icon" 
+              variant="ghost"
+              onClick={() => setIsCartOpen(true)}
+              className="relative"
+            >
+              <ShoppingBag className="h-5 w-5" />
+              {cartItems.length > 0 && (
+                <span className="absolute -top-1 -right-1 bg-[#a656bc] text-white text-xs rounded-full h-5 w-5 flex items-center justify-center">
+                  {cartItems.reduce((total, item) => total + item.quantity, 0)}
+                </span>
+              )}
             </Button>
             <Avatar className="w-10 h-10">
               <AvatarImage
@@ -207,164 +149,69 @@ export default function Component() {
           </div>
         </header>
 
-        <div className="mb-12 grid grid-cols-2 gap-6">
-          <Card className="bg-[#e0e5ce] border-0 rounded-[24px]">
-            <CardContent className="p-6">
-              <p className="mb-2 text-sm font-medium uppercase text-[#338838]">BEST OFFERS</p>
-              <h3 className="mb-4 text-2xl font-semibold">Tote Bag Collection</h3>
-              <p className="mb-6 text-gray-600">Join and discover the best product according to your passion</p>
-              <Button className="bg-[#415444] hover:bg-[#415444]/90">See More</Button>
-            </CardContent>
-          </Card>
-          <Card className="bg-[#e7ddd1] border-0 rounded-[24px]">
-            <CardContent className="flex items-center justify-between p-6">
-              <div>
-                <h3 className="mb-4 text-3xl font-semibold">Flash Sale ✨</h3>
-                <p className="mb-6 text-5xl font-bold">75% OFF</p>
-                <Button className="bg-[#415444] hover:bg-[#415444]/90">Buy Now!</Button>
-              </div>
-              <Image
-                src="https://hebbkx1anhila5yf.public.blob.vercel-storage.com/Index,%20Vanderbrand.jpg-Fv7HHkBaQgZe7HG3hbz5aojPoFRIuo.jpeg"
-                alt="Square One District Tote"
-                width={200}
-                height={200}
-                className="object-contain"
-              />
-            </CardContent>
-          </Card>
-        </div>
-
-        <div className="mb-8 flex items-center justify-between">
-          <h3 className="text-2xl font-semibold">Popular Collection</h3>
-          <Button variant="link">See All</Button>
-        </div>
-
-        <div className="grid grid-cols-3 gap-6">
-          {popularItems.map((item) => (
-            <Card
-              key={item.id}
-              className="group border-0 bg-[#e0e5ce] rounded-[24px] overflow-hidden transition-all duration-300 hover:shadow-lg hover:-translate-y-1"
-            >
-              <CardHeader className="p-0 relative">
-                <div className="absolute inset-0 bg-black/40 opacity-0 transition-opacity group-hover:opacity-100 z-10" />
-                <Button className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 z-20 opacity-0 transform scale-95 transition-all group-hover:opacity-100 group-hover:scale-100 bg-white text-black hover:bg-white/90">
-                  Quick View
-                </Button>
-                <Image
-                  src={item.image || "/placeholder.svg"}
-                  alt={item.name}
-                  width={400}
-                  height={400}
-                  className="h-[280px] w-full object-cover transition-transform duration-300 group-hover:scale-105"
-                />
-              </CardHeader>
-              <CardContent className="p-6 space-y-4">
-                <div>
-                  <h4 className="text-lg font-semibold mb-1 line-clamp-1">{item.name}</h4>
-                  <div className="flex items-center gap-2">
-                    <div className="flex items-center">
-                      {[...Array(5)].map((_, i) => (
-                        <svg
-                          key={i}
-                          className={`w-4 h-4 ${i < Math.floor(item.rating) ? "text-yellow-400" : "text-gray-300"}`}
-                          fill="currentColor"
-                          viewBox="0 0 20 20"
-                        >
-                          <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
-                        </svg>
-                      ))}
+        <div className="space-y-8">
+          <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+            {popularItems.map((item, index) => (
+              <Card key={item.id} className="overflow-hidden border-0 rounded-3xl shadow-sm bg-white">
+                <div className="aspect-square p-6">
+                  <img
+                    src={item.image}
+                    alt={item.name}
+                    className="h-full w-full object-cover rounded-2xl"
+                  />
+                </div>
+                <CardContent className="p-6 space-y-4">
+                  <div className="space-y-2">
+                    <h3 className="font-semibold text-lg">{item.name}</h3>
+                    <div className="flex items-center gap-1">
+                      <span className="text-orange-400">★★★★★</span>
+                      <span className="text-sm text-gray-500">({item.rating})</span>
                     </div>
-                    <span className="text-sm text-gray-600">({item.rating})</span>
                   </div>
-                </div>
-                <div className="flex items-center justify-between">
-                  <p className="text-[#338838] text-xl font-semibold">$ {item.price}</p>
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    className="rounded-full hover:bg-[#415444] hover:text-white transition-colors"
-                    onClick={() => addToCart(item)}
-                  >
-                    Add to Cart
-                  </Button>
-                </div>
-              </CardContent>
-            </Card>
-          ))}
+                  <div className="flex items-center justify-between">
+                    <span className="text-2xl font-bold">${item.price}</span>
+                    <Button
+                      onClick={() => addToCart(item)}
+                      className="bg-[#415444] hover:bg-[#415444]/90 rounded-xl px-6"
+                    >
+                      Add To Cart
+                    </Button>
+                  </div>
+                </CardContent>
+              </Card>
+            ))}
+          </div>
         </div>
       </main>
 
       {/* Cart Sidebar */}
-      <aside className="w-96 border-l px-8 py-8 flex flex-col bg-white/95">
-        <div className="mb-8 flex items-center justify-between">
-          <h3 className="text-2xl font-semibold">My Cart</h3>
-          <Button variant="outline" size="icon" className="rounded-full w-12 h-12 border-2">
-            <span className="sr-only">Back</span>
-            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-              <path
-                d="M15 19L8 12L15 5"
-                stroke="currentColor"
-                strokeWidth="2"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-              />
-            </svg>
-          </Button>
-        </div>
+      {isCartOpen && (
+        <aside className="fixed top-0 right-0 w-80 bg-white shadow-lg h-full z-50 p-6">
+          <div className="flex items-center justify-between mb-6">
+            <h2 className="text-xl font-semibold">My Cart ({cartItems.reduce((total, item) => total + item.quantity, 0)})</h2>
+            <Button
+              variant="ghost"
+              size="icon"
+              onClick={() => setIsCartOpen(false)}
+              className="rounded-full"
+            >
+              ✕
+            </Button>
+          </div>
 
-        <div className="space-y-8 flex-grow overflow-auto">
-          {cartItems.map((item) => (
-            <div key={item.id} className="flex gap-6 bg-white rounded-3xl p-4 shadow-sm">
-              <Image
-                src={item.image || "/placeholder.svg"}
-                alt={item.name}
-                width={100}
-                height={100}
-                className="h-[100px] w-[100px] rounded-2xl bg-[#e0e5ce] object-cover"
-              />
-              <div className="flex-1">
-                <div className="mb-4 flex items-start justify-between">
-                  <div>
-                    <h4 className="font-semibold text-lg">{item.name}</h4>
-                    <p className="text-sm text-[#338838] mt-1">SIZE {item.size}</p>
-                    <p className="font-semibold mt-2">$ {item.price}</p>
-                  </div>
-                  <Button
-                    variant="ghost"
-                    size="icon"
-                    className="h-8 w-8"
-                    onClick={() => updateQuantity(item.id, -item.quantity)}
-                  >
-                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                      <path
-                        d="M12 13C12.5523 13 13 12.5523 13 12C13 11.4477 12.5523 11 12 11C11.4477 11 11 11.4477 11 12C11 12.5523 11.4477 13 12 13Z"
-                        fill="currentColor"
-                        stroke="currentColor"
-                        strokeWidth="2"
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                      />
-                      <path
-                        d="M19 13C19.5523 13 20 12.5523 20 12C20 11.4477 19.5523 11 19 11C18.4477 11 18 11.4477 18 12C18 12.5523 18.4477 13 19 13Z"
-                        fill="currentColor"
-                        stroke="currentColor"
-                        strokeWidth="2"
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                      />
-                      <path
-                        d="M5 13C5.55228 13 6 12.5523 6 12C6 11.4477 5.55228 11 5 11C4.44772 11 4 11.4477 4 12C4 12.5523 4.44772 13 5 13Z"
-                        fill="currentColor"
-                        stroke="currentColor"
-                        strokeWidth="2"
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                      />
-                    </svg>
-                  </Button>
-                </div>
-                <div className="flex items-center justify-end">
-                  <div className="flex items-center gap-4 bg-[#f7f7f7] rounded-full px-4 py-1">
+          <div className="space-y-4 mb-6">
+            {cartItems.map((item) => (
+              <div key={item.id} className="flex gap-4 bg-[#f7f7f7] rounded-2xl p-4">
+                <img
+                  src={item.image}
+                  alt={item.name}
+                  className="w-16 h-16 rounded-xl object-cover"
+                />
+                <div className="flex-1">
+                  <h3 className="font-medium text-sm">{item.name}</h3>
+                  <p className="text-gray-600 text-xs">Size: {item.size}</p>
+                  <p className="font-semibold text-sm mt-1">${item.price}</p>
+                  <div className="flex items-center gap-4 bg-[#f7f7f7] rounded-full px-4 py-1 mt-2 w-fit">
                     <button
                       className="text-gray-500 hover:text-gray-700"
                       onClick={() => updateQuantity(item.id, -1)}
@@ -383,29 +230,29 @@ export default function Component() {
                   </div>
                 </div>
               </div>
-            </div>
-          ))}
-        </div>
+            ))}
+          </div>
 
-        <div className="mt-8 space-y-4">
-          <div className="flex items-center justify-between text-base">
-            <p className="text-gray-600">Sub Total</p>
-            <p className="font-semibold">$ {cartTotal.toFixed(2)}</p>
+          <div className="mt-8 space-y-4">
+            <div className="flex items-center justify-between text-base">
+              <p className="text-gray-600">Sub Total</p>
+              <p className="font-semibold">$ {cartTotal.toFixed(2)}</p>
+            </div>
+            <div className="flex items-center justify-between text-base">
+              <p className="text-gray-600">Shipping</p>
+              <p className="text-[#338838]">FREE</p>
+            </div>
+            <Separator />
+            <div className="flex items-center justify-between text-lg font-semibold">
+              <p>Total</p>
+              <p>$ {cartTotal.toFixed(2)}</p>
+            </div>
+            <Button className="w-full bg-[#415444] hover:bg-[#415444]/90 rounded-2xl h-14 text-lg font-semibold mt-4">
+              Checkout
+            </Button>
           </div>
-          <div className="flex items-center justify-between text-base">
-            <p className="text-gray-600">Shipping</p>
-            <p className="text-[#338838]">FREE</p>
-          </div>
-          <Separator />
-          <div className="flex items-center justify-between text-lg font-semibold">
-            <p>Total</p>
-            <p>$ {cartTotal.toFixed(2)}</p>
-          </div>
-          <Button className="w-full bg-[#415444] hover:bg-[#415444]/90 rounded-2xl h-14 text-lg font-semibold mt-4">
-            Checkout
-          </Button>
-        </div>
-      </aside>
+        </aside>
+      )}
     </div>
   )
 }
