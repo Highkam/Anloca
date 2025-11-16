@@ -124,6 +124,9 @@ services:
         condition: service_healthy
     networks:
       - app-network
+    volumes:
+      - ./services/catalog-service/src:/app/src
+      - ./services/catalog-service/prisma:/app/prisma
 
   # Microservicio de autenticación
   auth:
@@ -142,6 +145,9 @@ services:
         condition: service_healthy
     networks:
       - app-network
+    volumes:
+      - ./services/auth-service/src:/app/src
+      - ./services/auth-service/prisma:/app/prisma
 
   # Microservicio de carrito
   cart:
@@ -161,6 +167,9 @@ services:
         condition: service_healthy
     networks:
       - app-network
+    volumes:
+      - ./services/cart-service/src:/app/src
+      - ./services/cart-service/prisma:/app/prisma
 
 # Volúmenes para persistencia
 volumes:

@@ -19,16 +19,17 @@ RUN npm run build
 
 FROM node:20-alpine AS runner
 WORKDIR /app
-ENV NODE_ENV=production \
+ENV NODE_ENV=development \
     PRISMA_CACHE_DIR=/tmp/prisma
 RUN apk add --no-cache openssl libc6-compat
 RUN apk add --no-cache openssl libc6-compat
 COPY package*.json ./
 COPY package-lock.json ./
+COPY --from=builder /app/tsconfig.json ./tsconfig.json
+COPY --from=builder /app/tsconfig.build.json ./tsconfig.build.json
 COPY --from=builder /app/dist ./dist
 COPY --from=builder /app/node_modules ./node_modules
 RUN mkdir -p /tmp/prisma && chown -R node:node /tmp/prisma /app /app/node_modules
-RUN --mount=type=cache,target=/root/.npm npm prune --omit=dev --silent --no-audit --no-fund
 COPY --from=builder /app/prisma ./prisma
 RUN addgroup -S node >/dev/null 2>&1 || true && \
     adduser -S node -G node >/dev/null 2>&1 || true && \
@@ -37,4 +38,4 @@ USER node
 
 EXPOSE 3001
 HEALTHCHECK --interval=30s --timeout=5s --start-period=10s --retries=3 CMD wget -qO- http://localhost:3001/ || exit 1
- CMD ["sh", "-c", "npx prisma migrate deploy && (npx prisma db seed || true) && node dist/src/main"]
+CMD ["sh", "-c", "npx prisma migrate deploy && (npx prisma db seed || true) && npm run start:dev"]
