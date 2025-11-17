@@ -1,8 +1,10 @@
-import { Body, Controller, Post, Get, Headers, Query } from '@nestjs/common';
+import { Body, Controller, Post, Get, Headers, Query, Put, Param, BadRequestException } from '@nestjs/common';
 import { ApiTags, ApiResponse, ApiProperty } from '@nestjs/swagger';
 import { LoginUseCase } from '../application/use-cases/login.use-case';
 import { CreateUserUseCase } from '../application/use-cases/create-user.use-case';
 import { CreateRoleUseCase } from '../application/use-cases/create-role.use-case';
+import { ListRolesUseCase } from '../application/use-cases/list-roles.use-case';
+import { UpdateRoleUseCase } from '../application/use-cases/update-role.use-case';
 
 class LoginDto {
   @ApiProperty({ example: 'user@example.com' })
@@ -28,6 +30,11 @@ class CreateUserDto {
 
 class CreateRoleDto {
   @ApiProperty({ example: 'admin' })
+  name: string;
+}
+
+class UpdateRoleDto {
+  @ApiProperty({ example: 'newname' })
   name: string;
 }
 
@@ -77,6 +84,14 @@ class SessionStatusDto {
   id?: number | null;
 }
 
+class RoleItemDto {
+  @ApiProperty({ example: 1 })
+  id_role: number;
+
+  @ApiProperty({ example: 'admin' })
+  name: string;
+}
+
 @ApiTags('auth')
 @Controller('auth')
 export class AuthController {
@@ -84,6 +99,8 @@ export class AuthController {
     private readonly loginUseCase: LoginUseCase,
     private readonly createUserUseCase: CreateUserUseCase,
     private readonly createRoleUseCase: CreateRoleUseCase,
+    private readonly listRolesUseCase: ListRolesUseCase,
+    private readonly updateRoleUseCase: UpdateRoleUseCase,
   ) {}
 
   @Post('roles')
@@ -93,6 +110,22 @@ export class AuthController {
     return await this.createRoleUseCase.execute({
       name: dto.name,
     });
+  }
+  
+  @Get('roles')
+  @ApiResponse({ status: 200, description: 'List of roles', type: [RoleItemDto] })
+  async listRoles(): Promise<RoleItemDto[]> {
+    return await this.listRolesUseCase.execute();
+  }
+
+  @Put('roles/:id')
+  @ApiResponse({ status: 200, description: 'Role updated', type: RoleItemDto })
+  @ApiResponse({ status: 404, description: 'Role not found' })
+  @ApiResponse({ status: 409, description: 'Another role with this name already exists' })
+  async updateRole(@Param('id') idParam: string, @Body() dto: UpdateRoleDto): Promise<RoleItemDto> {
+    const id = parseInt(idParam, 10);
+    if (Number.isNaN(id)) throw new BadRequestException('Invalid id');
+    return await this.updateRoleUseCase.execute({ id_role: id, name: dto.name });
   }
 
   @Post('register')
@@ -145,4 +178,6 @@ export class AuthController {
     }
     return { valid: false, id: null };
   }
+
+  
 }

@@ -7,10 +7,12 @@ import { CreateUserUseCase } from './application/use-cases/create-user.use-case'
 import { CreateRoleUseCase } from './application/use-cases/create-role.use-case';
 import { UserRepository } from './infrastructure/prisma/user.repository';
 import { RoleRepository } from './infrastructure/prisma/role.repository';
+import { ListRolesUseCase } from './application/use-cases/list-roles.use-case';
+import { UpdateRoleUseCase } from './application/use-cases/update-role.use-case';
 
 @Module({
   imports: [],
   controllers: [AppController, AuthController],
-  providers: [AppService, LoginUseCase, CreateUserUseCase, CreateRoleUseCase, UserRepository, RoleRepository],
+  providers: [AppService, LoginUseCase, CreateUserUseCase, CreateRoleUseCase, UserRepository, RoleRepository, ListRolesUseCase, UpdateRoleUseCase],
 })
 export class AppModule {}

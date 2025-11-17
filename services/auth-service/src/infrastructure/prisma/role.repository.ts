@@ -38,4 +38,17 @@ export class RoleRepository {
     if (!role) return null;
     return new Role(role.id_role, role.name);
   }
+
+  async findAll(): Promise<Role[]> {
+    const roles: PrismaRole[] = await this.prisma.role.findMany();
+    return roles.map(r => new Role(r.id_role, r.name));
+  }
+
+  async update(id_role: number, data: { name: string }): Promise<Role> {
+    const role: PrismaRole = await this.prisma.role.update({
+      where: { id_role },
+      data: { name: data.name },
+    });
+    return new Role(role.id_role, role.name);
+  }
 }
