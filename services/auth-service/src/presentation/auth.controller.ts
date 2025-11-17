@@ -1,10 +1,11 @@
-import { Body, Controller, Post, Get, Headers, Query, Put, Param, BadRequestException } from '@nestjs/common';
+import { Body, Controller, Post, Get, Headers, Query, Put, Param, BadRequestException, Delete, HttpCode, HttpStatus } from '@nestjs/common';
 import { ApiTags, ApiResponse, ApiProperty } from '@nestjs/swagger';
 import { LoginUseCase } from '../application/use-cases/login.use-case';
 import { CreateUserUseCase } from '../application/use-cases/create-user.use-case';
 import { CreateRoleUseCase } from '../application/use-cases/create-role.use-case';
 import { ListRolesUseCase } from '../application/use-cases/list-roles.use-case';
 import { UpdateRoleUseCase } from '../application/use-cases/update-role.use-case';
+import { DeleteRoleUseCase } from '../application/use-cases/delete-role.use-case';
 
 class LoginDto {
   @ApiProperty({ example: 'user@example.com' })
@@ -101,6 +102,7 @@ export class AuthController {
     private readonly createRoleUseCase: CreateRoleUseCase,
     private readonly listRolesUseCase: ListRolesUseCase,
     private readonly updateRoleUseCase: UpdateRoleUseCase,
+    private readonly deleteRoleUseCase: DeleteRoleUseCase,
   ) {}
 
   @Post('roles')
@@ -179,5 +181,13 @@ export class AuthController {
     return { valid: false, id: null };
   }
 
-  
+  @Delete('roles/:id')
+  @HttpCode(HttpStatus.NO_CONTENT)
+  @ApiResponse({ status: 204, description: 'Role deleted' })
+  @ApiResponse({ status: 404, description: 'Role not found' })
+  async deleteRole(@Param('id') idParam: string): Promise<void> {
+    const id = parseInt(idParam, 10);
+    if (Number.isNaN(id)) throw new BadRequestException('Invalid id');
+    await this.deleteRoleUseCase.execute(id);
+  }
 }

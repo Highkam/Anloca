@@ -51,4 +51,10 @@ export class RoleRepository {
     });
     return new Role(role.id_role, role.name);
   }
+
+  async delete(id_role: number): Promise<void> {
+    await this.prisma.role.delete({
+      where: { id_role },
+    });
+  }
 }
