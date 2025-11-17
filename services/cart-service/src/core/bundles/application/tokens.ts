@@ -1,0 +1,1 @@
+export const BUNDLE_REPOSITORY = Symbol('BUNDLE_REPOSITORY');

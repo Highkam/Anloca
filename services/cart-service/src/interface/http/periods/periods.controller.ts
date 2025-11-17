@@ -34,18 +34,19 @@ export class PeriodsController {
     return PeriodMapper.toDto(p);
   }
 
+  // List all must come before parameterized routes
+  @Get('all')
+  @ApiResponse({ status: 200, description: 'List periods', type: [(PeriodMapper as any).toDto.constructor] })
+  async list(): Promise<PeriodDto[]> {
+    const list = await this.listUseCase.execute();
+    return list.map(PeriodMapper.toDto);
+  }
+
   @Get(':id')
   @ApiResponse({ status: 200, description: 'Get period', type: (PeriodMapper as any).toDto.constructor })
   async get(@Param('id', ParseIntPipe) id: number): Promise<PeriodDto> {
     const p = await this.getUseCase.execute(id);
     return PeriodMapper.toDto(p);
-  }
-
-  @Get()
-  @ApiResponse({ status: 200, description: 'List periods', type: [(PeriodMapper as any).toDto.constructor] })
-  async list(): Promise<PeriodDto[]> {
-    const list = await this.listUseCase.execute();
-    return list.map(PeriodMapper.toDto);
   }
 
   @Delete(':id')

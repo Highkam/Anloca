@@ -22,9 +22,19 @@ model CartProduct {
 }
 
 model Period {
-  id            Int    @id @default(autoincrement())
-  name          String @unique
+  id            Int      @id @default(autoincrement())
+  name          String   @unique
   duration_days Int
+  bundles       Bundle[]
+}
+
+model Bundle {
+  id           Int      @id @default(autoincrement())
+  userId       Int
+  name         String
+  recurrenceId Int
+  recurrence   Period   @relation(fields: [recurrenceId], references: [id])
+  createdAt    DateTime @default(now())
 }
 
 

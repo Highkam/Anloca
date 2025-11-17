@@ -98,7 +98,6 @@ services:
       DATABASE_URL: postgresql://catalog_user:catalog_password@postgres-catalog:5432/catalog_db
       NODE_ENV: production
       PORT: 3000
-    command: sh -c "npx prisma migrate deploy && npx prisma generate && npm run start:prod"
     ports:
       - "3000:3000"
     depends_on:
@@ -120,7 +119,6 @@ services:
       DATABASE_URL: postgresql://auth_user:auth_password@postgres-auth:5432/auth_db
       NODE_ENV: production
       PORT: 3001
-    command: sh -c "npx prisma migrate deploy && npx prisma generate && npm run start:prod"
     ports:
       - "3001:3001"
     depends_on:
@@ -143,7 +141,6 @@ services:
       CART_DATABASE_URL: postgresql://cart_user:cart_password@postgres-cart:5432/cart_db
       NODE_ENV: production
       PORT: 3002
-    command: sh -c "npx prisma migrate deploy && npx prisma generate && npm run start:prod"
     ports:
       - "3002:3002"
     depends_on:
