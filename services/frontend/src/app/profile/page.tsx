@@ -40,7 +40,7 @@ export default function ProfilePage() {
   return (
     <div className="flex min-h-screen bg-[#fcfdfd]">
       {/* Sidebar */}
-      <aside className="w-50 border-r px-6 py-8 bg-[#f8f9fa]/95">
+      <aside className="w-50 border-r px-6 py-8 bg-[#f8f9fa]/95 sticky top-0 h-screen">
         <div className="mb-8">
           <Image
             src="/images/anloca-logo.svg"
@@ -53,33 +53,33 @@ export default function ProfilePage() {
         <nav className="space-y-6">
           <Link
             href="/"
-            className="flex items-center gap-3 px-3 py-2 text-gray-500 transition-colors hover:text-gray-900"
+            className="flex items-center gap-3 px-3 py-2 text-gray-500 transition-colors hover:text-[#A564D3] hover:bg-[#FFC9FF]/20"
           >
             <Home className="h-5 w-5" />
             Dashboard
           </Link>
           <Link
             href="/profile"
-            className="flex items-center gap-3 rounded-lg bg-[#a656bc] px-3 py-2 text-white transition-colors"
+            className="flex items-center gap-3 rounded-lg bg-gradient-to-r from-[#A564D3] to-[#B66EE8] px-3 py-2 text-white transition-colors shadow-md"
           >
             <User2 className="h-5 w-5" />
             Profile
           </Link>
           <Link
             href="/settings"
-            className="flex items-center gap-3 px-3 py-2 text-gray-500 transition-colors hover:text-gray-900"
+            className="flex items-center gap-3 px-3 py-2 text-gray-500 transition-colors hover:text-[#A564D3] hover:bg-[#FFC9FF]/20"
           >
             <Settings className="h-5 w-5" />
             Settings
           </Link>
           <Link
             href="/cart"
-            className="flex items-center gap-3 px-3 py-2 text-gray-500 transition-colors hover:text-gray-900"
+            className="flex items-center gap-3 px-3 py-2 text-gray-500 transition-colors hover:text-[#A564D3] hover:bg-[#FFC9FF]/20"
           >
             <div className="relative">
               <ShoppingBag className="h-5 w-5" />
               {cartItems.length > 0 && (
-                <span className="absolute -top-2 -right-2 bg-[#a656bc] text-white text-xs rounded-full h-5 w-5 flex items-center justify-center">
+                <span className="absolute -top-2 -right-2 bg-[#B66EE8] text-white text-xs rounded-full h-5 w-5 flex items-center justify-center">
                   {cartItems.reduce((total, item) => total + item.quantity, 0)}
                 </span>
               )}
@@ -88,14 +88,14 @@ export default function ProfilePage() {
           </Link>
           <Link
             href="/support"
-            className="flex items-center gap-3 px-3 py-2 text-gray-500 transition-colors hover:text-gray-900"
+            className="flex items-center gap-3 px-3 py-2 text-gray-500 transition-colors hover:text-[#A564D3] hover:bg-[#FFC9FF]/20"
           >
             <User2 className="h-5 w-5" />
             Support
           </Link>
           <Link
             href="#"
-            className="flex items-center gap-3 px-3 py-2 text-red-500 transition-colors hover:text-red-600"
+            className="flex items-center gap-3 px-3 py-2 text-red-500 transition-colors hover:text-red-600 hover:bg-red-50"
           >
             <LogOut className="h-5 w-5" />
             Logout
@@ -115,12 +115,12 @@ export default function ProfilePage() {
               <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-400" />
               <Input className="w-64 pl-10" placeholder="Search" />
             </div>
-            <Button size="icon" variant="ghost">
+            <Button size="icon" variant="ghost" className="hover:bg-[#FFC9FF]/20 text-gray-600 hover:text-[#A564D3]">
               <Bell className="h-5 w-5" />
             </Button>
             <Avatar className="w-10 h-10">
               <AvatarImage
-                src="https://hebbkx1anhila5yf.public.blob.vercel-storage.com/dd.jpg-482Kz4Ro7YXPgsZnttDFsQEmrWQnhG.jpeg"
+                src="/images/dd.jpeg"
                 alt="User avatar"
               />
               <AvatarFallback>NA</AvatarFallback>
@@ -130,12 +130,12 @@ export default function ProfilePage() {
 
         <div className="grid gap-6 max-w-5xl">
           {/* Profile Header */}
-          <Card className="border-0 rounded-[24px] bg-[#e0e5ce]">
+          <Card className="border-0 rounded-[24px] bg-gradient-to-br from-[#D689FF] to-[#A564D3] shadow-lg">
             <CardContent className="p-8">
               <div className="flex items-start gap-8">
-                <Avatar className="w-32 h-32">
+                <Avatar className="w-32 h-32 ring-4 ring-white/50">
                   <AvatarImage
-                    src="https://hebbkx1anhila5yf.public.blob.vercel-storage.com/dd.jpg-482Kz4Ro7YXPgsZnttDFsQEmrWQnhG.jpeg"
+                    src="/images/dd.jpeg"
                     alt="User avatar"
                   />
                   <AvatarFallback>NA</AvatarFallback>
@@ -143,25 +143,25 @@ export default function ProfilePage() {
                 <div className="flex-1">
                   <div className="flex items-start justify-between mb-4">
                     <div>
-                      <h3 className="text-3xl font-semibold mb-2">Dollar Smith</h3>
-                      <p className="text-gray-600">Member since January 2024</p>
+                      <h3 className="text-3xl font-semibold mb-2 text-white">Name User</h3>
+                      <p className="text-white/90">Member since January 2024</p>
                     </div>
-                    <Button className="bg-[#415444] hover:bg-[#415444]/90 rounded-xl">
+                    <Button className="bg-white text-[#A564D3] hover:bg-white/90 hover:text-[#B66EE8] rounded-xl transition-colors shadow-md">
                       Edit Profile
                     </Button>
                   </div>
                   <div className="grid grid-cols-3 gap-6 mt-6">
                     <div className="bg-white rounded-2xl p-4">
                       <p className="text-gray-600 text-sm mb-1">Total Orders</p>
-                      <p className="text-2xl font-bold text-[#338838]">24</p>
+                      <p className="text-2xl font-bold text-[#A564D3]">24</p>
                     </div>
                     <div className="bg-white rounded-2xl p-4">
                       <p className="text-gray-600 text-sm mb-1">Total Spent</p>
-                      <p className="text-2xl font-bold text-[#338838]">$2,847</p>
+                      <p className="text-2xl font-bold text-[#A564D3]">$2,847</p>
                     </div>
                     <div className="bg-white rounded-2xl p-4">
                       <p className="text-gray-600 text-sm mb-1">Loyalty Points</p>
-                      <p className="text-2xl font-bold text-[#338838]">1,240</p>
+                      <p className="text-2xl font-bold text-[#A564D3]">1,240</p>
                     </div>
                   </div>
                 </div>
@@ -177,8 +177,8 @@ export default function ProfilePage() {
               </CardHeader>
               <CardContent className="space-y-6">
                 <div className="flex items-center gap-4">
-                  <div className="bg-[#e0e5ce] rounded-full p-3">
-                    <Mail className="h-5 w-5 text-[#415444]" />
+                  <div className="bg-gradient-to-br from-[#A564D3] to-[#A564D3] rounded-full p-3">
+                    <Mail className="h-5 w-5 text-white" />
                   </div>
                   <div>
                     <p className="text-sm text-gray-500">Email</p>
@@ -187,8 +187,8 @@ export default function ProfilePage() {
                 </div>
                 <Separator />
                 <div className="flex items-center gap-4">
-                  <div className="bg-[#e0e5ce] rounded-full p-3">
-                    <Phone className="h-5 w-5 text-[#415444]" />
+                  <div className="bg-gradient-to-br from-[#A564D3] to-[#A564D3] rounded-full p-3">
+                    <Phone className="h-5 w-5 text-white" />
                   </div>
                   <div>
                     <p className="text-sm text-gray-500">Phone</p>
@@ -197,8 +197,8 @@ export default function ProfilePage() {
                 </div>
                 <Separator />
                 <div className="flex items-center gap-4">
-                  <div className="bg-[#e0e5ce] rounded-full p-3">
-                    <MapPin className="h-5 w-5 text-[#415444]" />
+                  <div className="bg-gradient-to-br from-[#A564D3] to-[#A564D3] rounded-full p-3">
+                    <MapPin className="h-5 w-5 text-white" />
                   </div>
                   <div>
                     <p className="text-sm text-gray-500">Address</p>
@@ -213,12 +213,12 @@ export default function ProfilePage() {
               <CardHeader>
                 <div className="flex items-center justify-between">
                   <CardTitle className="text-xl">Shipping Address</CardTitle>
-                  <Button variant="ghost" size="sm">Edit</Button>
+                  <Button variant="ghost" size="sm" className="text-[#A564D3] hover:bg-[#FFC9FF]/20 hover:text-[#B66EE8]">Edit</Button>
                 </div>
               </CardHeader>
               <CardContent className="space-y-4">
                 <div>
-                  <p className="font-semibold mb-1">Dollar Smith</p>
+                  <p className="font-semibold mb-1">Name User</p>
                   <p className="text-gray-600 text-sm leading-relaxed">
                     123 Fashion Street<br />
                     Apartment 4B<br />
@@ -227,7 +227,7 @@ export default function ProfilePage() {
                   </p>
                 </div>
                 <Separator />
-                <Button variant="outline" className="w-full rounded-xl">
+                <Button variant="outline" className="w-full rounded-xl border-[#A564D3] text-[#A564D3] hover:bg-[#A564D3] hover:text-white transition-colors">
                   Add New Address
                 </Button>
               </CardContent>
@@ -239,7 +239,7 @@ export default function ProfilePage() {
             <CardHeader>
               <div className="flex items-center justify-between">
                 <CardTitle className="text-xl">Recent Orders</CardTitle>
-                <Button variant="link">View All</Button>
+                <Button variant="link" className="text-[#A564D3] hover:text-[#B66EE8] hover:no-underline">View All</Button>
               </div>
             </CardHeader>
             <CardContent>
@@ -247,11 +247,11 @@ export default function ProfilePage() {
                 {recentOrders.map((order) => (
                   <div
                     key={order.id}
-                    className="flex items-center justify-between p-4 bg-[#fcfdfd] rounded-2xl hover:bg-[#e0e5ce]/30 transition-colors"
+                    className="flex items-center justify-between p-4 bg-gradient-to-r from-[#FFC9FF]/10 to-[#FFCEFF]/10 rounded-2xl hover:from-[#E498FF]/20 hover:to-[#F2A8FF]/20 transition-all duration-200"
                   >
                     <div className="flex items-center gap-4">
-                      <div className="bg-[#e0e5ce] rounded-xl p-4">
-                        <ShoppingBag className="h-6 w-6 text-[#415444]" />
+                      <div className="bg-gradient-to-br from-[#E498FF] to-[#F2A8FF] rounded-xl p-4">
+                        <ShoppingBag className="h-6 w-6 text-white" />
                       </div>
                       <div>
                         <p className="font-semibold mb-1">{order.id}</p>
@@ -268,13 +268,13 @@ export default function ProfilePage() {
                           order.status === "Delivered"
                             ? "bg-green-100 text-green-700"
                             : order.status === "In Transit"
-                              ? "bg-blue-100 text-blue-700"
+                              ? "bg-purple-100 text-purple-700"
                               : "bg-yellow-100 text-yellow-700"
                         }`}
                       >
                         {order.status}
                       </div>
-                      <Button variant="outline" size="sm" className="rounded-xl">
+                      <Button variant="outline" size="sm" className="rounded-xl border-[#A564D3] text-[#A564D3] hover:bg-[#A564D3] hover:text-white transition-colors">
                         View Details
                       </Button>
                     </div>

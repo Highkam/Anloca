@@ -31,7 +31,7 @@ export default function SettingsPage() {
   return (
     <div className="flex min-h-screen bg-[#fcfdfd]">
       {/* Sidebar */}
-      <aside className="w-50 border-r px-6 py-8 bg-[#f8f9fa]/95">
+      <aside className="w-50 border-r px-6 py-8 bg-[#f8f9fa]/95 sticky top-0 h-screen">
         <div className="mb-8">
           <Image
             src="/images/anloca-logo.svg"
@@ -58,19 +58,19 @@ export default function SettingsPage() {
           </Link>
           <Link
             href="/settings"
-            className="flex items-center gap-3 rounded-lg bg-[#a656bc] px-3 py-2 text-white transition-colors"
+            className="flex items-center gap-3 rounded-lg bg-gradient-to-r from-[#A564D3] to-[#B66EE8] px-3 py-2 text-white transition-colors shadow-md"
           >
             <Settings className="h-5 w-5" />
             Settings
           </Link>
           <Link
             href="/cart"
-            className="flex items-center gap-3 px-3 py-2 text-gray-500 transition-colors hover:text-gray-900"
+            className="flex items-center gap-3 px-3 py-2 text-gray-500 transition-colors hover:text-[#A564D3] hover:bg-[#FFC9FF]/20"
           >
             <div className="relative">
               <ShoppingBag className="h-5 w-5" />
               {cartItems.length > 0 && (
-                <span className="absolute -top-2 -right-2 bg-[#a656bc] text-white text-xs rounded-full h-5 w-5 flex items-center justify-center">
+                <span className="absolute -top-2 -right-2 bg-[#B66EE8] text-white text-xs rounded-full h-5 w-5 flex items-center justify-center">
                   {cartItems.reduce((total, item) => total + item.quantity, 0)}
                 </span>
               )}
@@ -79,7 +79,7 @@ export default function SettingsPage() {
           </Link>
           <Link
             href="/support"
-            className="flex items-center gap-3 px-3 py-2 text-gray-500 transition-colors hover:text-gray-900"
+            className="flex items-center gap-3 px-3 py-2 text-gray-500 transition-colors hover:text-[#A564D3] hover:bg-[#FFC9FF]/20"
           >
             <User2 className="h-5 w-5" />
             Support
@@ -106,12 +106,12 @@ export default function SettingsPage() {
               <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-400" />
               <Input className="w-64 pl-10" placeholder="Search settings" />
             </div>
-            <Button size="icon" variant="ghost">
+            <Button size="icon" variant="ghost" className="hover:bg-[#FFC9FF]/20 text-gray-600 hover:text-[#A564D3]">
               <Bell className="h-5 w-5" />
             </Button>
             <Avatar className="w-10 h-10">
               <AvatarImage
-                src="https://hebbkx1anhila5yf.public.blob.vercel-storage.com/dd.jpg-482Kz4Ro7YXPgsZnttDFsQEmrWQnhG.jpeg"
+                src="/images/dd.jpeg"
                 alt="User avatar"
               />
               <AvatarFallback>NA</AvatarFallback>
@@ -129,16 +129,16 @@ export default function SettingsPage() {
               <div className="grid grid-cols-2 gap-6">
                 <div className="space-y-2">
                   <Label htmlFor="firstName">First Name</Label>
-                  <Input id="firstName" defaultValue="Dollar" className="rounded-xl" />
+                  <Input id="firstName" defaultValue="Name" className="rounded-xl" />
                 </div>
                 <div className="space-y-2">
                   <Label htmlFor="lastName">Last Name</Label>
-                  <Input id="lastName" defaultValue="Smith" className="rounded-xl" />
+                  <Input id="lastName" defaultValue="User" className="rounded-xl" />
                 </div>
               </div>
               <div className="space-y-2">
                 <Label htmlFor="email">Email Address</Label>
-                <Input id="email" type="email" defaultValue="dollar@example.com" className="rounded-xl" />
+                <Input id="email" type="email" defaultValue="name@example.com" className="rounded-xl" />
               </div>
               <div className="space-y-2">
                 <Label htmlFor="phone">Phone Number</Label>
@@ -165,14 +165,14 @@ export default function SettingsPage() {
                 <Label htmlFor="confirmPassword">Confirm New Password</Label>
                 <Input id="confirmPassword" type="password" className="rounded-xl" />
               </div>
-              <Button className="bg-[#415444] hover:bg-[#415444]/90 rounded-xl">Update Password</Button>
+              <Button className="bg-gradient-to-r from-[#A564D3] to-[#B66EE8] hover:from-[#B66EE8] hover:to-[#C879FF] text-white rounded-xl transition-all duration-200">Update Password</Button>
             </CardContent>
           </Card>
 
           {/* Notification Settings */}
-          <Card className="border-0 rounded-[24px] bg-[#e0e5ce]">
+          <Card className="border-0 rounded-[24px] bg-gradient-to-br from-[#FFC9FF]/20 to-[#FFCEFF]/20 shadow-sm">
             <CardHeader>
-              <CardTitle className="text-xl">Notification Preferences</CardTitle>
+              <CardTitle className="text-xl text-[#A564D3]">Notification Preferences</CardTitle>
             </CardHeader>
             <CardContent className="space-y-6">
               <div className="flex items-center justify-between">
@@ -186,6 +186,7 @@ export default function SettingsPage() {
                   id="emailNotif"
                   checked={emailNotifications}
                   onCheckedChange={setEmailNotifications}
+                  className="data-[state=checked]:bg-gradient-to-r data-[state=checked]:from-[#A564D3] data-[state=checked]:to-[#B66EE8] data-[state=unchecked]:bg-gray-200"
                 />
               </div>
               <Separator />
@@ -200,6 +201,7 @@ export default function SettingsPage() {
                   id="pushNotif"
                   checked={pushNotifications}
                   onCheckedChange={setPushNotifications}
+                  className="data-[state=checked]:bg-gradient-to-r data-[state=checked]:from-[#A564D3] data-[state=checked]:to-[#B66EE8] data-[state=unchecked]:bg-gray-200"
                 />
               </div>
               <Separator />
@@ -214,6 +216,7 @@ export default function SettingsPage() {
                   id="marketing"
                   checked={marketingEmails}
                   onCheckedChange={setMarketingEmails}
+                  className="data-[state=checked]:bg-gradient-to-r data-[state=checked]:from-[#A564D3] data-[state=checked]:to-[#B66EE8] data-[state=unchecked]:bg-gray-200"
                 />
               </div>
             </CardContent>
@@ -221,10 +224,10 @@ export default function SettingsPage() {
 
           {/* Save Button */}
           <div className="flex justify-end gap-4">
-            <Button variant="outline" className="rounded-xl px-8">
+            <Button variant="outline" className="rounded-xl px-8 border-[#A564D3] text-[#A564D3] hover:bg-[#A564D3] hover:text-white transition-colors">
               Cancel
             </Button>
-            <Button className="bg-[#415444] hover:bg-[#415444]/90 rounded-xl px-8" onClick={handleSaveSettings}>
+            <Button className="bg-gradient-to-r from-[#A564D3] to-[#B66EE8] hover:from-[#B66EE8] hover:to-[#C879FF] text-white rounded-xl px-8 transition-all duration-200" onClick={handleSaveSettings}>
               Save Changes
             </Button>
           </div>

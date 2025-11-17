@@ -69,7 +69,7 @@ export default function SupportPage() {
   return (
     <div className="flex min-h-screen bg-[#fcfdfd]">
       {/* Sidebar */}
-      <aside className="w-50 border-r px-6 py-8 bg-[#f8f9fa]/95">
+      <aside className="w-50 border-r px-6 py-8 bg-[#f8f9fa]/95 sticky top-0 h-screen">
         <div className="mb-8">
           <Image
             src="/images/anloca-logo.svg"
@@ -103,12 +103,12 @@ export default function SupportPage() {
           </Link>
           <Link
             href="/cart"
-            className="flex items-center gap-3 px-3 py-2 text-gray-500 transition-colors hover:text-gray-900"
+            className="flex items-center gap-3 px-3 py-2 text-gray-500 transition-colors hover:text-[#A564D3] hover:bg-[#FFC9FF]/20"
           >
             <div className="relative">
               <ShoppingBag className="h-5 w-5" />
               {cartItems.length > 0 && (
-                <span className="absolute -top-2 -right-2 bg-[#a656bc] text-white text-xs rounded-full h-5 w-5 flex items-center justify-center">
+                <span className="absolute -top-2 -right-2 bg-[#B66EE8] text-white text-xs rounded-full h-5 w-5 flex items-center justify-center">
                   {cartItems.reduce((total, item) => total + item.quantity, 0)}
                 </span>
               )}
@@ -117,14 +117,14 @@ export default function SupportPage() {
           </Link>
           <Link
             href="/support"
-            className="flex items-center gap-3 rounded-lg bg-[#a656bc] px-3 py-2 text-white transition-colors"
+            className="flex items-center gap-3 rounded-lg bg-gradient-to-r from-[#A564D3] to-[#B66EE8] px-3 py-2 text-white transition-colors shadow-md"
           >
             <User2 className="h-5 w-5" />
             Support
           </Link>
           <Link
             href="#"
-            className="flex items-center gap-3 px-3 py-2 text-red-500 transition-colors hover:text-red-600"
+            className="flex items-center gap-3 px-3 py-2 text-red-500 transition-colors hover:text-red-600 hover:bg-red-50"
           >
             <LogOut className="h-5 w-5" />
             Logout
@@ -144,12 +144,12 @@ export default function SupportPage() {
               <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-400" />
               <Input className="w-64 pl-10" placeholder="Search for help" />
             </div>
-            <Button size="icon" variant="ghost">
+            <Button size="icon" variant="ghost" className="hover:bg-[#FFC9FF]/20 text-gray-600 hover:text-[#A564D3]">
               <Bell className="h-5 w-5" />
             </Button>
             <Avatar className="w-10 h-10">
               <AvatarImage
-                src="https://hebbkx1anhila5yf.public.blob.vercel-storage.com/dd.jpg-482Kz4Ro7YXPgsZnttDFsQEmrWQnhG.jpeg"
+                src="/images/dd.jpeg"
                 alt="User avatar"
               />
               <AvatarFallback>NA</AvatarFallback>
@@ -160,14 +160,14 @@ export default function SupportPage() {
         <div className="grid gap-6 max-w-5xl">
           {/* Quick Contact Options */}
           <div className="grid grid-cols-3 gap-6">
-            <Card className="border-0 rounded-[24px] bg-[#e0e5ce] hover:shadow-lg transition-shadow cursor-pointer">
+            <Card className="border-0 rounded-[24px] bg-gradient-to-br from-[#E498FF] to-[#F2A8FF] hover:shadow-lg transition-all duration-200 cursor-pointer">
               <CardContent className="p-6 text-center">
                 <div className="bg-white rounded-full w-16 h-16 flex items-center justify-center mx-auto mb-4">
-                  <MessageCircle className="h-8 w-8 text-[#415444]" />
+                  <MessageCircle className="h-8 w-8 text-[#A564D3]" />
                 </div>
-                <h3 className="font-semibold text-lg mb-2">Live Chat</h3>
-                <p className="text-sm text-gray-600 mb-4">Chat with our support team</p>
-                <Button className="bg-[#415444] hover:bg-[#415444]/90 w-full rounded-xl">
+                <h3 className="font-semibold text-lg mb-2 text-white">Live Chat</h3>
+                <p className="text-sm text-white/90 mb-4">Chat with our support team</p>
+                <Button className="bg-white text-[#A564D3] hover:bg-white/90 hover:text-[#B66EE8] w-full rounded-xl transition-colors">
                   Start Chat
                 </Button>
               </CardContent>
@@ -175,12 +175,12 @@ export default function SupportPage() {
 
             <Card className="border-0 rounded-[24px] bg-white hover:shadow-lg transition-shadow cursor-pointer">
               <CardContent className="p-6 text-center">
-                <div className="bg-[#e0e5ce] rounded-full w-16 h-16 flex items-center justify-center mx-auto mb-4">
-                  <Mail className="h-8 w-8 text-[#415444]" />
+                <div className="bg-gradient-to-br from-[#FFC9FF]/30 to-[#FFCEFF]/30 rounded-full w-16 h-16 flex items-center justify-center mx-auto mb-4">
+                  <Mail className="h-8 w-8 text-[#A564D3]" />
                 </div>
                 <h3 className="font-semibold text-lg mb-2">Email Support</h3>
                 <p className="text-sm text-gray-600 mb-4">support@fashionstore.com</p>
-                <Button variant="outline" className="w-full rounded-xl">
+                <Button variant="outline" className="w-full rounded-xl border-[#A564D3] text-[#A564D3] hover:bg-[#A564D3] hover:text-white transition-colors">
                   Send Email
                 </Button>
               </CardContent>
@@ -188,12 +188,12 @@ export default function SupportPage() {
 
             <Card className="border-0 rounded-[24px] bg-white hover:shadow-lg transition-shadow cursor-pointer">
               <CardContent className="p-6 text-center">
-                <div className="bg-[#e0e5ce] rounded-full w-16 h-16 flex items-center justify-center mx-auto mb-4">
-                  <Phone className="h-8 w-8 text-[#415444]" />
+                <div className="bg-gradient-to-br from-[#FFC9FF]/30 to-[#FFCEFF]/30 rounded-full w-16 h-16 flex items-center justify-center mx-auto mb-4">
+                  <Phone className="h-8 w-8 text-[#A564D3]" />
                 </div>
                 <h3 className="font-semibold text-lg mb-2">Phone Support</h3>
                 <p className="text-sm text-gray-600 mb-4">1-800-FASHION</p>
-                <Button variant="outline" className="w-full rounded-xl">
+                <Button variant="outline" className="w-full rounded-xl border-[#A564D3] text-[#A564D3] hover:bg-[#A564D3] hover:text-white transition-colors">
                   Call Now
                 </Button>
               </CardContent>
@@ -227,7 +227,7 @@ export default function SupportPage() {
                 />
               </div>
               <Button
-                className="bg-[#415444] hover:bg-[#415444]/90 rounded-xl px-8"
+                className="bg-gradient-to-r from-[#A564D3] to-[#B66EE8] hover:from-[#B66EE8] hover:to-[#C879FF] text-white rounded-xl px-8 transition-all duration-200"
                 onClick={handleSubmitTicket}
               >
                 Submit Ticket
@@ -236,9 +236,9 @@ export default function SupportPage() {
           </Card>
 
           {/* FAQ Section */}
-          <Card className="border-0 rounded-[24px] bg-[#e0e5ce]">
+          <Card className="border-0 rounded-[24px] bg-gradient-to-br from-[#FFC9FF]/20 to-[#FFCEFF]/20 shadow-sm">
             <CardHeader>
-              <CardTitle className="text-xl">Frequently Asked Questions</CardTitle>
+              <CardTitle className="text-xl text-[#A564D3]">Frequently Asked Questions</CardTitle>
             </CardHeader>
             <CardContent>
               <Accordion type="single" collapsible className="space-y-4">

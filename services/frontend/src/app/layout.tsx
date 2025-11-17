@@ -7,11 +7,13 @@ import { CartProvider } from '@/core/cart/cart-context'
 import './globals.css'
 
 export const metadata: Metadata = {
-  title: 'v0 App',
-  description: 'Created with v0',
-  generator: 'v0.app',
+  title: 'Anloca - Online Shopping',
+  description: 'Discover new items and fashion accessories at Anloca. Quality, style, and comfort in every product.',
+  generator: 'Next.js',
   icons: {
-    icon: '/icon.svg',
+    icon: '/images/anloca-logo.svg',
+    shortcut: '/images/anloca-logo.png',
+    apple: '/images/anloca-logo.png',
   },
 }
 
