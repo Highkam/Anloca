@@ -37,4 +37,11 @@ model Bundle {
   createdAt    DateTime @default(now())
 }
 
+model BundleProduct {
+  id        Int     @id @default(autoincrement())
+  bundleId  Int
+  productId Int
+  amount    Int
+}
+
 
