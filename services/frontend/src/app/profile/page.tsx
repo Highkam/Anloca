@@ -10,8 +10,17 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/core/ui/card"
 import { Input } from "@/core/ui/input"
 import { Separator } from "@/core/ui/separator"
 import { useCart } from "@/core/cart/cart-context"
+import { AuthGuard } from "@/components/auth/AuthGuard"
 
 export default function ProfilePage() {
+  return (
+    <AuthGuard>
+      <ProfileContent />
+    </AuthGuard>
+  )
+}
+
+function ProfileContent() {
   const { cartItems } = useCart()
   const recentOrders = [
     {
@@ -284,7 +293,7 @@ export default function ProfilePage() {
             </CardContent>
           </Card>
         </div>
-      </main>
-    </div>
-  )
-}
+        </main>
+      </div>
+    )
+  }

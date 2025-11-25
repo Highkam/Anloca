@@ -14,8 +14,9 @@ import { Switch } from "@/core/ui/switch"
 import { Separator } from "@/core/ui/separator"
 import { toast } from "@/core/hooks/use-toast"
 import { useCart } from "@/core/cart/cart-context"
+import { AuthGuard } from "@/components/auth/AuthGuard"
 
-export default function SettingsPage() {
+function SettingsContent() {
   const [emailNotifications, setEmailNotifications] = useState(true)
   const [pushNotifications, setPushNotifications] = useState(false)
   const [marketingEmails, setMarketingEmails] = useState(true)
@@ -234,5 +235,13 @@ export default function SettingsPage() {
         </div>
       </main>
     </div>
+  )
+}
+
+export default function SettingsPage() {
+  return (
+    <AuthGuard>
+      <SettingsContent />
+    </AuthGuard>
   )
 }

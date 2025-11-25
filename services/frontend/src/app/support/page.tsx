@@ -19,16 +19,33 @@ import {
 } from "@/core/ui/accordion"
 import { toast } from "@/core/hooks/use-toast"
 import { useCart } from "@/core/cart/cart-context"
+import { useAuth } from "@/infraestructure/auth/auth-provider"
+import { useRouter } from "next/navigation"
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+} from "@/core/ui/dialog"
 
 export default function SupportPage() {
   const [subject, setSubject] = useState("")
   const [message, setMessage] = useState("")
+  const [showAuthRequired, setShowAuthRequired] = useState(false)
   const { cartItems } = useCart()
+  const { isAuthenticated } = useAuth()
+  const router = useRouter()
 
   const handleSubmitTicket = () => {
+    if (!isAuthenticated) {
+      setShowAuthRequired(true)
+      return
+    }
+    
     if (!subject || !message) {
       toast({
-        title: "Missing Information",
+        title: "Missing information",
         description: "Please fill in all fields before submitting.",
         variant: "destructive",
       })
@@ -36,8 +53,8 @@ export default function SupportPage() {
     }
     
     toast({
-      title: "Ticket Submitted",
-      description: "We'll get back to you within 24 hours.",
+      title: "Settings saved",
+      description: "Your preferences have been updated successfully.",
     })
     setSubject("")
     setMessage("")
@@ -261,6 +278,39 @@ export default function SupportPage() {
           </Card>
         </div>
       </main>
+      
+      {/* Auth Required Dialog */}
+      <Dialog open={showAuthRequired} onOpenChange={setShowAuthRequired}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2">
+              <Mail className="h-5 w-5 text-[#A564D3]" />
+              Sign in to continue
+            </DialogTitle>
+            <DialogDescription>
+              You need to sign in to submit a ticket.
+            </DialogDescription>
+          </DialogHeader>
+          <div className="flex flex-col gap-4 mt-4">
+            <Button 
+              onClick={() => {
+                setShowAuthRequired(false)
+                router.push('/login')
+              }}
+              className="bg-gradient-to-r from-[#A564D3] to-[#B66EE8] hover:from-[#B66EE8] hover:to-[#C879FF] text-white transition-all duration-200 hover:scale-105"
+            >
+              Sign In / Sign Up
+            </Button>
+            <Button 
+              variant="outline" 
+              onClick={() => setShowAuthRequired(false)}
+              className="border-gray-300 hover:bg-gray-50"
+            >
+              Continue Browsing
+            </Button>
+          </div>
+        </DialogContent>
+      </Dialog>
     </div>
   )
 }

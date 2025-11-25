@@ -4,6 +4,7 @@ import { Bell, Home, LogOut, Mail, Search, Settings, ShoppingBag, User2 } from '
 import Image from "next/image"
 import Link from "next/link"
 import { useCallback, useState } from "react"
+import { useRouter } from "next/navigation"
 
 import { Avatar, AvatarFallback, AvatarImage } from "@/core/ui/avatar"
 import { Button } from "@/core/ui/button"
@@ -12,13 +13,39 @@ import { Input } from "@/core/ui/input"
 import { Separator } from "@/core/ui/separator"
 import { toast } from "@/core/hooks/use-toast"
 import { useCart } from "@/core/cart/cart-context"
+import { useAuth } from "@/infraestructure/auth/auth-provider"
 
 export default function CartPage() {
   const { cartItems, updateQuantity, calculateTotal } = useCart()
+  const { user, isAuthenticated } = useAuth()
+  const router = useRouter()
+
+  // Handler para rutas protegidas
+  const handleProtectedRoute = (route: string) => {
+    if (!isAuthenticated) {
+      router.push('/login')
+      return
+    }
+    router.push(route)
+  }
 
   const cartTotal = calculateTotal()
   const shippingCost = 0
   const tax = cartTotal * 0.08
+
+  // Handler para checkout que requiere autenticación
+  const handleCheckout = () => {
+    if (!isAuthenticated) {
+      router.push('/login')
+      return
+    }
+    // Proceder con checkout - aquí se integraría con el servicio de pagos
+    toast({
+      title: "Redirecting to checkout",
+      description: "Taking you to the payment gateway...",
+    })
+    console.log('Proceeding to checkout for authenticated user')
+  }
 
   return (
     <div className="flex min-h-screen bg-[#fcfdfd]">
@@ -41,20 +68,20 @@ export default function CartPage() {
             <Home className="h-5 w-5" />
             Dashboard
           </Link>
-          <Link
-            href="/profile"
-            className="flex items-center gap-3 px-3 py-2 text-gray-500 transition-colors hover:text-gray-900"
+          <button
+            onClick={() => handleProtectedRoute('/profile')}
+            className="flex items-center gap-3 px-3 py-2 text-gray-500 transition-colors hover:text-gray-900 w-full text-left"
           >
             <User2 className="h-5 w-5" />
             Profile
-          </Link>
-          <Link
-            href="/settings"
-            className="flex items-center gap-3 px-3 py-2 text-gray-500 transition-colors hover:text-gray-900"
+          </button>
+          <button
+            onClick={() => handleProtectedRoute('/settings')}
+            className="flex items-center gap-3 px-3 py-2 text-gray-500 transition-colors hover:text-gray-900 w-full text-left"
           >
             <Settings className="h-5 w-5" />
             Settings
-          </Link>
+          </button>
           <Link
             href="/cart"
             className="flex items-center gap-3 rounded-lg bg-gradient-to-r from-[#A564D3] to-[#B66EE8] px-3 py-2 text-white transition-colors shadow-md"
@@ -206,8 +233,11 @@ export default function CartPage() {
                     <p className="text-2xl font-bold text-white">$ {(cartTotal + tax).toFixed(2)}</p>
                   </div>
                 </div>
-                <Button className="w-full bg-white text-[#A564D3] hover:bg-white/90 hover:text-[#B66EE8] rounded-2xl h-14 text-lg font-semibold transition-colors shadow-md">
-                  Proceed to Checkout
+                <Button 
+                  onClick={handleCheckout}
+                  className="w-full bg-white text-[#A564D3] hover:bg-white/90 hover:text-[#B66EE8] rounded-2xl h-14 text-lg font-semibold transition-colors shadow-md"
+                >
+                  {isAuthenticated ? 'Proceed to Checkout' : 'Sign in to Checkout'}
                 </Button>
                 <Button
                   variant="outline"

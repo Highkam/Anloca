@@ -30,6 +30,15 @@ export default function Component() {
   // Solo mostrar órdenes frecuentes para usuarios autenticados
   const displayFrequentOrders = isAuthenticated ? frequentOrders : []
 
+  // Handler para rutas protegidas
+  const handleProtectedRoute = (route: string) => {
+    if (!isAuthenticated) {
+      setShowAuthRequired(true)
+      return
+    }
+    router.push(route)
+  }
+
   const popularItems = [
     {
       id: "1",
@@ -238,20 +247,20 @@ export default function Component() {
             <Home className="h-5 w-5" />
             Dashboard
           </Link>
-          <Link
-            href="/profile"
-            className="flex items-center gap-3 px-3 py-2 text-gray-500 transition-colors hover:text-[#A564D3] hover:bg-[#FFC9FF]/20"
+          <button
+            onClick={() => handleProtectedRoute('/profile')}
+            className="flex items-center gap-3 px-3 py-2 text-gray-500 transition-colors hover:text-[#A564D3] hover:bg-[#FFC9FF]/20 w-full text-left"
           >
             <User2 className="h-5 w-5" />
             Profile
-          </Link>
-          <Link
-            href="/settings"
-            className="flex items-center gap-3 px-3 py-2 text-gray-500 transition-colors hover:text-[#A564D3] hover:bg-[#FFC9FF]/20"
+          </button>
+          <button
+            onClick={() => handleProtectedRoute('/settings')}
+            className="flex items-center gap-3 px-3 py-2 text-gray-500 transition-colors hover:text-[#A564D3] hover:bg-[#FFC9FF]/20 w-full text-left"
           >
             <Settings className="h-5 w-5" />
             Settings
-          </Link>
+          </button>
           <Link
             href="/cart"
             className="flex items-center gap-3 px-3 py-2 text-gray-500 transition-colors hover:text-[#A564D3] hover:bg-[#FFC9FF]/20"
@@ -327,12 +336,15 @@ export default function Component() {
                 </span>
               )}
             </Button>
-            <Avatar className="w-10 h-10">
+            <Avatar 
+              className="w-10 h-10 cursor-pointer hover:ring-2 hover:ring-[#B66EE8] transition-all"
+              onClick={() => handleProtectedRoute('/profile')}
+            >
               <AvatarImage
-                src="/images/dd.jpeg"
+                src={isAuthenticated && user?.avatar ? user.avatar : "/images/dd.jpeg"}
                 alt="User avatar"
               />
-              <AvatarFallback>NA</AvatarFallback>
+              <AvatarFallback>{isAuthenticated && user?.firstName ? user.firstName.charAt(0).toUpperCase() : 'U'}</AvatarFallback>
             </Avatar>
           </div>
         </header>
@@ -348,7 +360,7 @@ export default function Component() {
                 <Button className="bg-white text-[#A564D3] hover:bg-white/90 transition-colors shadow-md">See More</Button>
               </div>
               <Image
-                src="/images/the-20best-20media-20tote-20bags-20ranked.jpeg"
+                src="/images/w-totebag.png"
                 alt="Tote Bag Collection"
                 width={180}
                 height={180}
@@ -394,7 +406,7 @@ export default function Component() {
                     Sign in to access your personalized order history and reorder your favorite products with one click
                   </p>
                   <Button
-                    onClick={() => router.push('/auth')}
+                    onClick={() => router.push('/login')}
                     className="bg-white text-[#A564D3] hover:bg-white/90 hover:text-[#B66EE8] px-8 py-3 rounded-xl font-semibold transition-all duration-200 hover:scale-105 shadow-md"
                   >
                     Sign In
@@ -644,7 +656,7 @@ export default function Component() {
             <Button 
               onClick={() => {
                 setShowAuthRequired(false)
-                router.push('/auth')
+                router.push('/login')
               }}
               className="bg-gradient-to-r from-[#A564D3] to-[#B66EE8] hover:from-[#B66EE8] hover:to-[#C879FF] text-white transition-all duration-200 hover:scale-105"
             >
