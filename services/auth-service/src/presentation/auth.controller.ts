@@ -1,8 +1,10 @@
-import { Body, Controller, Post, Get, Headers, Query } from '@nestjs/common';
+import { Body, Controller, Post, Get, Headers, Query, UseGuards } from '@nestjs/common';
 import { ApiTags, ApiResponse, ApiProperty } from '@nestjs/swagger';
 import { LoginUseCase } from '../application/use-cases/login.use-case';
 import { CreateUserUseCase } from '../application/use-cases/create-user.use-case';
 import { CreateRoleUseCase } from '../application/use-cases/create-role.use-case';
+import { AdminRoleGuard } from './guards/admin-role.guard';
+import { ApiBearerAuth } from '@nestjs/swagger';
 
 class LoginDto {
   @ApiProperty({ example: 'user@example.com' })
@@ -35,8 +37,8 @@ class LoginResponseDto {
   @ApiProperty({ example: 1 })
   id: number;
 
-  @ApiProperty({ example: 'a1b2c3d4...' })
-  sessionToken: string;
+  @ApiProperty({ example: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...' })
+  jwt: string;
 }
 
 class CreateUserResponseDto {
@@ -69,6 +71,11 @@ class LogoutResponseDto {
   success: boolean;
 }
 
+class ValidateTokenDto {
+  @ApiProperty({ example: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...' })
+  jwt: string;
+}
+
 class SessionStatusDto {
   @ApiProperty({ example: true })
   valid: boolean;
@@ -78,15 +85,28 @@ class SessionStatusDto {
 }
 
 @ApiTags('auth')
+@ApiBearerAuth('access-token')
 @Controller('auth')
 export class AuthController {
+    @Post('validate-token')
+    @ApiResponse({ status: 200, description: 'Validate JWT', type: SessionStatusDto })
+      async validateToken(@Body() body: ValidateTokenDto): Promise<SessionStatusDto> {
+        const token = body?.jwt;
+        if (typeof (this.loginUseCase as any).validateSession === 'function') {
+          const id = await (this.loginUseCase as any).validateSession(token);
+          return { valid: id !== null, id };
+        }
+        return { valid: false, id: null };
+    }
   constructor(
     private readonly loginUseCase: LoginUseCase,
     private readonly createUserUseCase: CreateUserUseCase,
     private readonly createRoleUseCase: CreateRoleUseCase,
   ) {}
 
-  @Post('roles')
+  @Post('create-role')
+  @UseGuards(AdminRoleGuard)
+  @ApiBearerAuth()
   @ApiResponse({ status: 201, description: 'Role created successfully', type: CreateRoleResponseDto })
   @ApiResponse({ status: 409, description: 'Role with this name already exists' })
   async createRole(@Body() dto: CreateRoleDto): Promise<CreateRoleResponseDto> {
@@ -98,13 +118,27 @@ export class AuthController {
   @Post('register')
   @ApiResponse({ status: 201, description: 'User created successfully', type: CreateUserResponseDto })
   @ApiResponse({ status: 409, description: 'User with this email already exists' })
+  @ApiResponse({ status: 400, description: 'Invalid role_id: role does not exist' })
   async createUser(@Body() dto: CreateUserDto): Promise<CreateUserResponseDto> {
-    return await this.createUserUseCase.execute({
-      name: dto.name,
-      email: dto.email,
-      password: dto.password,
-      role_id: dto.role_id ?? 2, // Default role_id = 2
-    });
+    try {
+      return await this.createUserUseCase.execute({
+        name: dto.name,
+        email: dto.email,
+        password: dto.password,
+        role_id: dto.role_id ?? 2,
+      });
+    } catch (error: any) {
+      if (error.code === 'P2003' && error.meta?.constraint === 'User_role_id_fkey') {
+        // Error de clave foránea en role_id
+        const { HttpException } = await import('@nestjs/common');
+        throw new HttpException({
+          statusCode: 400,
+          message: 'Invalid role_id: role does not exist',
+          error: 'Bad Request',
+        }, 400);
+      }
+      throw error;
+    }
   }
 
   @Post('login')
@@ -112,7 +146,7 @@ export class AuthController {
   async login(@Body() dto: LoginDto): Promise<LoginResponseDto> {
     const result: any = await this.loginUseCase.execute(dto.email, dto.password);
     const id = result?.id_user ?? result?.id ?? null;
-    return { id, sessionToken: result.sessionToken };
+    return { id, jwt: result.jwt };
   }
 
   @Post('logout')
@@ -131,18 +165,5 @@ export class AuthController {
     return { success: false };
   }
 
-  @Get('session')
-  @ApiResponse({ status: 200, description: 'Session status', type: SessionStatusDto })
-  async sessionStatus(
-    @Headers('x-session-token') tokenFromHeader?: string,
-    @Headers('authorization') authorization?: string,
-    @Query('token') tokenFromQuery?: string,
-  ): Promise<SessionStatusDto> {
-    const token = tokenFromHeader ?? tokenFromQuery ?? (authorization?.startsWith('Bearer ') ? authorization.slice(7) : undefined);
-    if (typeof (this.loginUseCase as any).validateSession === 'function') {
-      const id = await (this.loginUseCase as any).validateSession(token);
-      return { valid: id !== null, id };
-    }
-    return { valid: false, id: null };
-  }
+
 }

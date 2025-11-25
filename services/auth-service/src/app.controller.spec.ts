@@ -24,7 +24,7 @@ describe('AppController', () => {
     });
   });
 
-  // Nuevo: tests de integración DB <-> LoginUseCase (solo si INTEGRATION_TEST=true)
+  // Pruebas de integración entre Prisma y LoginUseCase
   const runIntegration = false;
   const integrationDescribe = runIntegration ? describe : describe.skip;
 
@@ -44,7 +44,7 @@ describe('AppController', () => {
       loginUseCase = new LoginUseCase(userRepo as any);
 
       const hashed = await bcrypt.hash(testPlain, 10);
-      // Upsert usuario de prueba (asegura existencia)
+      // Crea o actualiza usuario de prueba
       await prisma.user.upsert({
         where: { email: testEmail },
         update: {
@@ -65,12 +65,12 @@ describe('AppController', () => {
       try {
         await prisma.user.deleteMany({ where: { email: testEmail } });
       } catch (e) {
-        // ignore
+        // Ignorar errores de borrado
       }
       await prisma.$disconnect();
     });
 
-    it('✅ should login, return id and sessionToken, validate and logout', async () => {
+    it('should login, return id and sessionToken, validate and logout', async () => {
       const result: any = await loginUseCase.execute(testEmail, testPlain);
       expect(result).toBeDefined();
       expect(result.id_user ?? result.id).toBeDefined();
@@ -80,7 +80,7 @@ describe('AppController', () => {
       expect(idFromSession).toBe(result.id_user ?? result.id);
 
       const logoutOk = await loginUseCase.logout(result.sessionToken);
-      // logout returns boolean (true if existed)
+      // logout retorna booleano (true si existía)
       expect(!!logoutOk).toBe(true);
 
       const afterLogout = await loginUseCase.validateSession(result.sessionToken);

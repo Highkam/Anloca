@@ -18,7 +18,7 @@ export class CreateCartProductUseCase {
     private readonly catalogClient: CatalogClientService,
   ) {}
 
-  // ✅ ELIMINADO: sessionToken y authClient - ya no son necesarios
+
   async execute(cartId: number, productId: number, amount: number): Promise<CartProduct> {
     this.logger.debug(`Executing CreateCartProductUseCase: cartId=${cartId}, productId=${productId}, amount=${amount}`);
     
