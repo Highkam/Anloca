@@ -1,0 +1,1 @@
+export const PERIOD_REPOSITORY = Symbol('PERIOD_REPOSITORY');
