@@ -14,11 +14,13 @@ interface CartItem {
 
 interface CartContextType {
   cartItems: CartItem[]
-  addToCart: (item: any) => void
+  addToCart: (item: any, skipAuthCheck?: boolean) => void
   updateQuantity: (itemId: string, change: number) => void
   calculateTotal: () => number
   isCartOpen: boolean
   setIsCartOpen: (open: boolean) => void
+  showAuthRequired: boolean
+  setShowAuthRequired: (show: boolean) => void
 }
 
 const CartContext = createContext<CartContextType | undefined>(undefined)
@@ -26,6 +28,7 @@ const CartContext = createContext<CartContextType | undefined>(undefined)
 export function CartProvider({ children }: { children: React.ReactNode }) {
   const [cartItems, setCartItems] = useState<CartItem[]>([])
   const [isCartOpen, setIsCartOpen] = useState(false)
+  const [showAuthRequired, setShowAuthRequired] = useState(false)
 
   const updateQuantity = useCallback((itemId: string, change: number) => {
     setCartItems(
@@ -49,7 +52,13 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
     )
   }, [])
 
-  const addToCart = useCallback((item: any) => {
+  const addToCart = useCallback((item: any, skipAuthCheck: boolean = false) => {
+    // Si no se especifica skipAuthCheck, verificar autenticación en el componente padre
+    if (!skipAuthCheck) {
+      setShowAuthRequired(true)
+      return
+    }
+
     setCartItems((prevItems) => {
       const existingItem = prevItems.find((cartItem) => cartItem.id === item.id)
       if (existingItem) {
@@ -80,6 +89,8 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
     calculateTotal,
     isCartOpen,
     setIsCartOpen,
+    showAuthRequired,
+    setShowAuthRequired,
   }
 
   return <CartContext.Provider value={value}>{children}</CartContext.Provider>

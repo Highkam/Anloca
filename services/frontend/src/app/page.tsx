@@ -1,8 +1,10 @@
 "use client"
 
+import { useState, useEffect } from 'react'
 import { Bell, Home, LogOut, Package, Search, Settings, ShoppingBag, User2 } from 'lucide-react'
 import Image from "next/image"
 import Link from "next/link"
+import { useRouter } from "next/navigation"
 
 import { Avatar, AvatarFallback, AvatarImage } from "@/core/ui/avatar"
 import { Button } from "@/core/ui/button"
@@ -10,76 +12,23 @@ import { Card, CardContent, CardHeader } from "@/core/ui/card"
 import { Input } from "@/core/ui/input"
 import { Separator } from "@/core/ui/separator"
 import { useCart } from "@/core/cart/cart-context"
-
-interface FrequentOrderItem {
-  id: string
-  name: string
-  price: number
-  size: string
-  quantity: number
-  image: string
-  orderCount: number
-}
+import { useAuth } from "@/infraestructure/auth/auth-provider"
+import { useFrequentOrders } from "@/core/hooks/use-frequent-orders"
+import { AuthGuard } from "@/components/auth/AuthGuard"
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/core/ui/dialog"
 
 export default function Component() {
-  const { cartItems, addToCart, updateQuantity, calculateTotal, isCartOpen, setIsCartOpen } = useCart()
+  const { cartItems, addToCart, updateQuantity, calculateTotal, isCartOpen, setIsCartOpen, showAuthRequired, setShowAuthRequired } = useCart()
+  const { user, isAuthenticated, logout } = useAuth()
+  const { frequentOrders, loading: ordersLoading } = useFrequentOrders()
+  const router = useRouter()
+  
+  // Estado para la búsqueda
+  const [searchQuery, setSearchQuery] = useState("")
+  const [filteredProducts, setFilteredProducts] = useState<any[]>([])
 
-  const frequentOrders: FrequentOrderItem[] = [
-    {
-      id: "3",
-      name: "Dog Food - Premium Kibble",
-      price: 45.99,
-      size: "15kg",
-      quantity: 1,
-      image: "/images/dogfood.png",
-      orderCount: 6,
-    },
-    {
-      id: "6",
-      name: "Coffee Pods - Medium Roast",
-      price: 32.99,
-      size: "50 pack",
-      quantity: 2,
-      image: "/images/coffeepods.png",
-      orderCount: 15,
-    },
-    {
-      id: "7",
-      name: "Dog Treats - Training Bites",
-      price: 18.99,
-      size: "500g",
-      quantity: 4,
-      image: "/images/dogtreats.png",
-      orderCount: 11,
-    },
-    {
-      id: "9",
-      name: "Kitchen Dish Soap - 3 Pack",
-      price: 12.99,
-      size: "500ml x3",
-      quantity: 1,
-      image: "/images/kitchendishsoap.png",
-      orderCount: 13,
-    },
-    {
-      id: "10",
-      name: "USB-C Cable - 6ft",
-      price: 15.99,
-      size: "2m",
-      quantity: 2,
-      image: "/images/usbcable.png",
-      orderCount: 10,
-    },
-    {
-      id: "11",
-      name: "Air Purifier Filters",
-      price: 42.99,
-      size: "2-pack",
-      quantity: 1,
-      image: "/images/airpurifier.png",
-      orderCount: 5,
-    }
-  ]
+  // Solo mostrar órdenes frecuentes para usuarios autenticados
+  const displayFrequentOrders = isAuthenticated ? frequentOrders : []
 
   const popularItems = [
     {
@@ -192,8 +141,63 @@ export default function Component() {
     },
   ]
 
+  // Función de filtrado de productos
+  const filterProducts = (query: string) => {
+    if (!query.trim()) {
+      return popularItems
+    }
+    
+    const lowercaseQuery = query.toLowerCase()
+    return popularItems.filter(item => 
+      item.name.toLowerCase().includes(lowercaseQuery) ||
+      item.description.toLowerCase().includes(lowercaseQuery) ||
+      item.category.toLowerCase().includes(lowercaseQuery)
+    )
+  }
+
+  // Efecto para filtrar productos cuando cambia la búsqueda
+  useEffect(() => {
+    const filtered = filterProducts(searchQuery)
+    setFilteredProducts(filtered)
+  }, [searchQuery])
+
+  // Inicializar con todos los productos
+  useEffect(() => {
+    setFilteredProducts(popularItems)
+  }, [])
+
+  // Manejar cambio en el input de búsqueda
+  const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setSearchQuery(e.target.value)
+  }
+
+  // Limpiar búsqueda
+  const clearSearch = () => {
+    setSearchQuery("")
+    setFilteredProducts(popularItems)
+  }
+
+  const handleAddToCart = (item: any) => {
+    if (!isAuthenticated) {
+      setShowAuthRequired(true)
+      return
+    }
+    addToCart(item, true) // skipAuthCheck = true porque ya verificamos aquí
+  }
+
+  const handleAuthSuccess = () => {
+    setShowAuthRequired(false)
+    // Refrescar la página o actualizar el estado después de autenticarse
+    window.location.reload()
+  }
+
   const reorderFrequentItems = () => {
-    frequentOrders.forEach((frequentItem) => {
+    if (!isAuthenticated) {
+      setShowAuthRequired(true)
+      return
+    }
+    
+    displayFrequentOrders.forEach((frequentItem) => {
       // Convertir FrequentOrderItem a formato compatible con addToCart
       const itemToAdd = {
         id: frequentItem.id,
@@ -205,13 +209,13 @@ export default function Component() {
       
       // Agregar la cantidad específica del pedido frecuente
       for (let i = 0; i < frequentItem.quantity; i++) {
-        addToCart(itemToAdd)
+        addToCart(itemToAdd, true) // skipAuthCheck = true
       }
     })
   }
 
   const cartTotal = calculateTotal()
-  const frequentOrdersTotal = frequentOrders.reduce((total, item) => total + item.price * item.quantity, 0)
+  const frequentOrdersTotal = displayFrequentOrders.reduce((total, item) => total + item.price * item.quantity, 0)
 
   return (
     <div className="flex min-h-screen bg-[#fcfdfd]">
@@ -284,14 +288,28 @@ export default function Component() {
         <header className="mb-8 flex items-center justify-between">
           <div className="space-y-1">
             <h2 className="text-2xl font-semibold">
-              Hello, User! <span className="ml-1"></span>
+              Hello, {isAuthenticated ? user?.firstName || 'User' : 'Guest'}! <span className="ml-1"></span>
             </h2>
-            <p className="text-gray-500">Welcome Back</p>
+            <p className="text-gray-500">{isAuthenticated ? 'Welcome Back' : 'Browse our products'}</p>
           </div>
           <div className="flex items-center gap-6">
             <div className="relative">
               <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-400" />
-              <Input className="w-64 pl-10" placeholder="Search for items" />
+              <Input 
+                className="w-64 pl-10 pr-10" 
+                placeholder="Search for items" 
+                value={searchQuery}
+                onChange={handleSearchChange}
+              />
+              {searchQuery && (
+                <button
+                  onClick={clearSearch}
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600"
+                  aria-label="Clear search"
+                >
+                  ✕
+                </button>
+              )}
             </div>
             <Button size="icon" variant="ghost">
               <Bell className="h-5 w-5" />
@@ -362,72 +380,130 @@ export default function Component() {
             <h3 className="text-2xl font-semibold">Your Frequent Orders</h3>
             <div className="flex items-center gap-2 text-sm text-gray-600">
               <Package className="h-4 w-4" />
-              <span>{frequentOrders.length} products</span>
+              <span>{displayFrequentOrders.length} products</span>
             </div>
           </div>
 
           <Card className="border-0 bg-gradient-to-br from-[#D689FF] to-[#E498FF] rounded-[24px] shadow-lg overflow-hidden transition-all duration-300 hover:shadow-xl hover:-translate-y-1">
             <CardContent className="p-8">
-              <div className="flex items-start justify-between mb-6">
-                <div>
-                  <h4 className="text-xl font-semibold mb-2 text-white">Frequent Orders Package</h4>
+              {!isAuthenticated ? (
+                <div className="text-center py-12">
+                  <User2 className="h-16 w-16 text-white/80 mx-auto mb-4" />
+                  <h4 className="text-xl font-semibold mb-2 text-white">Login to See Your Frequent Orders</h4>
+                  <p className="text-white/90 mb-6">
+                    Sign in to access your personalized order history and reorder your favorite products with one click
+                  </p>
+                  <Button
+                    onClick={() => router.push('/auth')}
+                    className="bg-white text-[#A564D3] hover:bg-white/90 hover:text-[#B66EE8] px-8 py-3 rounded-xl font-semibold transition-all duration-200 hover:scale-105 shadow-md"
+                  >
+                    Sign In
+                  </Button>
+                </div>
+              ) : ordersLoading ? (
+                <div className="text-center py-12">
+                  <div className="animate-spin h-8 w-8 border-2 border-white border-t-transparent rounded-full mx-auto mb-4"></div>
+                  <p className="text-white/90">Loading your frequent orders...</p>
+                </div>
+              ) : displayFrequentOrders.length === 0 ? (
+                <div className="text-center py-12">
+                  <Package className="h-16 w-16 text-white/80 mx-auto mb-4" />
+                  <h4 className="text-xl font-semibold mb-2 text-white">No Frequent Orders Yet</h4>
                   <p className="text-white/90">
-                    Products you order most frequently, ready to reorder with one click
+                    Start shopping to build your personalized frequent orders list
                   </p>
                 </div>
-                <div className="text-right">
-                  <p className="text-sm text-white/80 mb-1">Package Total</p>
-                  <p className="text-3xl font-bold text-white">$ {frequentOrdersTotal.toFixed(2)}</p>
-                </div>
-              </div>
-
-              <div className="grid grid-cols-3 gap-4 mb-6">
-                {frequentOrders.map((item) => (
-                  <div key={item.id} className="bg-white/95 rounded-2xl p-4 shadow-sm transition-all duration-200 hover:shadow-md hover:scale-105 backdrop-blur-sm">
-                    <div className="relative mb-3">
-                      <img
-                        src={item.image}
-                        alt={item.name}
-                        className="w-full h-32 object-cover rounded-xl"
-                      />
-                      <div className="absolute top-2 right-2 bg-[#A564D3] text-white text-xs px-2 py-1 rounded-full">
-                        x{item.quantity}
-                      </div>
+              ) : (
+                <>
+                  <div className="flex items-start justify-between mb-6">
+                    <div>
+                      <h4 className="text-xl font-semibold mb-2 text-white">Frequent Orders Package</h4>
+                      <p className="text-white/90">
+                        Products you order most frequently, ready to reorder with one click
+                      </p>
                     </div>
-                    <h5 className="font-semibold text-sm mb-1 line-clamp-2">{item.name}</h5>
-                    <p className="text-xs text-gray-500 mb-2">Ordered {item.orderCount} times</p>
-                    <p className="text-[#A564D3] font-semibold">$ {item.price}</p>
+                    <div className="text-right">
+                      <p className="text-sm text-white/80 mb-1">Package Total</p>
+                      <p className="text-3xl font-bold text-white">$ {frequentOrdersTotal.toFixed(2)}</p>
+                    </div>
                   </div>
-                ))}
-              </div>
 
-              <div className="flex items-center gap-4">
-                <Button
-                  className="flex-1 bg-white text-[#A564D3] hover:bg-white/90 hover:text-[#B66EE8] h-14 text-lg font-semibold rounded-2xl transition-all duration-200 hover:scale-105 shadow-md"
-                  onClick={reorderFrequentItems}
-                >
-                  <Package className="h-5 w-5 mr-2" />
-                  Reorder Entire Package
-                </Button>
-                <Button
-                  variant="outline"
-                  className="h-14 px-8 rounded-2xl border-2 border-white bg-white/20 text-white hover:bg-white hover:text-[#A564D3] transition-all duration-200 shadow-md"
-                >
-                  Personalize
-                </Button>
-              </div>
+                  <div className="grid grid-cols-3 gap-4 mb-6">
+                    {displayFrequentOrders.map((item) => (
+                      <div key={item.id} className="bg-white/95 rounded-2xl p-4 shadow-sm transition-all duration-200 hover:shadow-md hover:scale-105 backdrop-blur-sm">
+                        <div className="relative mb-3">
+                          <img
+                            src={item.image}
+                            alt={item.name}
+                            className="w-full h-32 object-cover rounded-xl"
+                          />
+                          <div className="absolute top-2 right-2 bg-[#A564D3] text-white text-xs px-2 py-1 rounded-full">
+                            x{item.quantity}
+                          </div>
+                        </div>
+                        <h5 className="font-semibold text-sm mb-1 line-clamp-2">{item.name}</h5>
+                        <p className="text-xs text-gray-500 mb-2">Ordered {item.orderCount} times</p>
+                        <p className="text-[#A564D3] font-semibold">$ {item.price}</p>
+                      </div>
+                    ))}
+                  </div>
+
+                  <div className="flex items-center gap-4">
+                    <Button
+                      className="flex-1 bg-white text-[#A564D3] hover:bg-white/90 hover:text-[#B66EE8] h-14 text-lg font-semibold rounded-2xl transition-all duration-200 hover:scale-105 shadow-md"
+                      onClick={reorderFrequentItems}
+                    >
+                      <Package className="h-5 w-5 mr-2" />
+                      Reorder Entire Package
+                    </Button>
+                    <Button
+                      variant="outline"
+                      className="h-14 px-8 rounded-2xl border-2 border-white bg-white/20 text-white hover:bg-white hover:text-[#A564D3] transition-all duration-200 shadow-md"
+                    >
+                      Personalize
+                    </Button>
+                  </div>
+                </>
+              )}
             </CardContent>
           </Card>
         </div>
 
         <div className="mb-8 flex items-center justify-between">
-          <h3 className="text-2xl font-semibold">Popular Collection</h3>
-          <Button variant="link" className="hover:text-[#B66EE8] transition-colors">See All</Button>
+          <div>
+            <h3 className="text-2xl font-semibold">
+              {searchQuery ? `Search Results for "${searchQuery}"` : 'Popular Collection'}
+            </h3>
+            {searchQuery && (
+              <p className="text-gray-500 mt-1">
+                {filteredProducts.length} {filteredProducts.length === 1 ? 'product' : 'products'} found
+              </p>
+            )}
+          </div>
+          {!searchQuery && (
+            <Button variant="link" className="hover:text-[#B66EE8] transition-colors">See All</Button>
+          )}
         </div>
 
         <div className="space-y-8">
-          <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-            {popularItems.map((item, index) => (
+          {filteredProducts.length === 0 ? (
+            <div className="text-center py-16">
+              <Search className="h-16 w-16 text-gray-300 mx-auto mb-4" />
+              <h3 className="text-xl font-semibold text-gray-600 mb-2">No products found</h3>
+              <p className="text-gray-500 mb-4">
+                We couldn't find any products matching "{searchQuery}"
+              </p>
+              <Button 
+                onClick={clearSearch}
+                variant="outline"
+                className="border-[#A564D3] text-[#A564D3] hover:bg-[#A564D3] hover:text-white"
+              >
+                Clear Search
+              </Button>
+            </div>
+          ) : (
+            <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+              {filteredProducts.map((item, index) => (
               <Card key={item.id} className="group overflow-hidden border-0 rounded-3xl shadow-sm bg-white transition-all duration-300 hover:shadow-lg hover:-translate-y-2">
                 <div className="aspect-square p-6 relative overflow-hidden">
                   <img
@@ -456,9 +532,9 @@ export default function Component() {
                     </div>
                   </div>
                   <div className="flex items-center justify-between">
-                    <span className="text-[#B66EE8] text-2xl font-bold">$ {item.price}</span>
+                    <span className="text-[#B66EE8] text-lg font-bold">$ {item.price}</span>
                     <Button
-                      onClick={() => addToCart(item)}
+                      onClick={() => handleAddToCart(item)}
                       className="bg-gradient-to-r from-[#A564D3] to-[#B66EE8] hover:from-[#B66EE8] hover:to-[#C879FF] text-white rounded-xl px-6 transition-all duration-200 hover:scale-105 shadow-md"
                     >
                       Add To Cart
@@ -466,8 +542,9 @@ export default function Component() {
                   </div>
                 </CardContent>
               </Card>
-            ))}
-          </div>
+              ))}
+            </div>
+          )}
         </div>
       </main>
 
@@ -534,12 +611,55 @@ export default function Component() {
               <p>Total</p>
               <p>$ {cartTotal.toFixed(2)}</p>
             </div>
-            <Button className="w-full bg-gradient-to-r from-[#A564D3] to-[#B66EE8] hover:from-[#B66EE8] hover:to-[#C879FF] text-white rounded-2xl h-14 text-lg font-semibold mt-4 transition-all duration-200 hover:scale-105 shadow-lg">
+            <Button 
+              className="w-full bg-gradient-to-r from-[#A564D3] to-[#B66EE8] hover:from-[#B66EE8] hover:to-[#C879FF] text-white rounded-2xl h-14 text-lg font-semibold mt-4 transition-all duration-200 hover:scale-105 shadow-lg"
+              onClick={() => {
+                if (!isAuthenticated) {
+                  setShowAuthRequired(true)
+                } else {
+                  // Proceder con checkout
+                  console.log('Proceeding to checkout')
+                }
+              }}
+            >
               Checkout
             </Button>
           </div>
         </aside>
       )}
+
+      {/* Auth Required Dialog */}
+      <Dialog open={showAuthRequired} onOpenChange={setShowAuthRequired}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2">
+              <ShoppingBag className="h-5 w-5 text-[#A564D3]" />
+              Sign in to continue
+            </DialogTitle>
+            <DialogDescription>
+              You need to sign in to add products to your cart and make purchases.
+            </DialogDescription>
+          </DialogHeader>
+          <div className="flex flex-col gap-4 mt-4">
+            <Button 
+              onClick={() => {
+                setShowAuthRequired(false)
+                router.push('/auth')
+              }}
+              className="bg-gradient-to-r from-[#A564D3] to-[#B66EE8] hover:from-[#B66EE8] hover:to-[#C879FF] text-white transition-all duration-200 hover:scale-105"
+            >
+              Sign In / Sign Up
+            </Button>
+            <Button 
+              variant="outline" 
+              onClick={() => setShowAuthRequired(false)}
+              className="border-gray-300 hover:bg-gray-50"
+            >
+              Continue Browsing
+            </Button>
+          </div>
+        </DialogContent>
+      </Dialog>
     </div>
   )
 }
