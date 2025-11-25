@@ -4,7 +4,7 @@ import { PrismaClient } from '@prisma/client';
 const prisma = new PrismaClient();
 
 async function main() {
-  console.log('🌱 Starting catalog database seed...');
+  console.log('Starting catalog database seed...');
 
   // Clean existing data
   await prisma.product.deleteMany();
@@ -50,8 +50,8 @@ async function main() {
     ],
   });
 
-  console.log('✅ Catalog seed completed!');
-  console.log('📦 Sample products created');
+  console.log('Catalog seed completed!');
+  console.log('Sample products created');
 }
 
 main()

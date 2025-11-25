@@ -8,8 +8,15 @@ async function bootstrap() {
 
   const config = new DocumentBuilder()
     .setTitle('Auth Service')
-    .setDescription('Contratos iniciales del microservicio Autenticación')
+    .setDescription('Microservicio de autenticación')
     .setVersion('1.0')
+    .addBearerAuth({
+      type: 'http',
+      scheme: 'bearer',
+      bearerFormat: 'JWT',
+      name: 'Authorization',
+      in: 'header',
+    }, 'access-token')
     .build();
 
   const document = SwaggerModule.createDocument(app, config);

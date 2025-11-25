@@ -21,7 +21,7 @@ async function main() {
     create: { name: 'user' },
   });
 
-  console.log(`✅ Roles ensured: admin(id=${adminRole.id_role}), user(id=${userRole.id_role})`);
+  console.log(`Roles ensured: admin(id=${adminRole.id_role}), user(id=${userRole.id_role})`);
 
   // Ensure an admin user exists (idempotent)
   const adminUser = await prisma.user.upsert({
@@ -40,7 +40,7 @@ async function main() {
     },
   });
 
-  console.log('✅ Admin user ensured:', adminUser.email);
+  console.log('Admin user ensured:', adminUser.email);
 
   // Ensure a regular test user exists (idempotent)
   const testUser = await prisma.user.upsert({
@@ -59,7 +59,7 @@ async function main() {
     },
   });
 
-  console.log('✅ Test user ensured:', testUser.email);
+  console.log('Test user ensured:', testUser.email);
 }
 
 main()

@@ -1,10 +1,11 @@
 FROM node:20-alpine AS deps
 WORKDIR /app
 ENV NPM_CONFIG_FUND=false \
-    NPM_CONFIG_AUDIT=false
+  NPM_CONFIG_AUDIT=false
 COPY package*.json ./
 COPY package-lock.json ./
 RUN npm install --silent --no-audit --no-fund --prefer-offline
+RUN npm install express jsonwebtoken @nestjs/swagger --save
 
 FROM node:20-alpine AS builder
 WORKDIR /app
@@ -28,8 +29,8 @@ COPY --from=builder /app/tsconfig.build.json ./tsconfig.build.json
 COPY --from=builder /app/dist ./dist
 COPY --from=builder /app/node_modules ./node_modules
 COPY --from=builder /app/prisma ./prisma
-RUN mkdir -p /tmp/prisma \
-  && chown -R node:node /tmp/prisma /app /app/node_modules
+    RUN mkdir -p /tmp/prisma \
+      && chown -R node:node /tmp/prisma
 ## En modo desarrollo no se eliminan los devDependencies para que el CLI de NestJS esté disponible
 RUN addgroup -S node >/dev/null 2>&1 || true; adduser -S node -G node >/dev/null 2>&1 || true
 USER node

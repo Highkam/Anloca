@@ -8,7 +8,7 @@ import { config } from 'dotenv';
 // Load env file from project root
 config({ path: '../../.env' });
 
-//Para levantar el servicio desde services: npm run start:cart
+
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
@@ -18,7 +18,7 @@ async function bootstrap() {
 
   const config = new DocumentBuilder()
     .setTitle('Cart Service')
-    .setDescription('Contratos iniciales del microservicio de carrito de compras')
+    .setDescription('Microservicio de carrito de compras')
     .setVersion('1.0')
     .build();
 
@@ -41,9 +41,9 @@ async function bootstrap() {
   }
 
   console.log(`
-🚀 Cart Service is running!
-📡 Server: http://localhost:${actualPort}
-📚 Swagger Docs: http://localhost:${actualPort}/api/docs
+Cart Service is running!
+Server: http://localhost:${actualPort}
+Swagger Docs: http://localhost:${actualPort}/api/docs
   `);
 }
 

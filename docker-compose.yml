@@ -43,7 +43,7 @@ services:
     networks:
       - app-network
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_CATALOG_USER} -d ${POSTGRES_CATALOG_DB}"]
+      test: ["CMD-SHELL", "pg_isready -U catalog_user -d catalog_db"]
       interval: 5s
       timeout: 5s
       retries: 5
@@ -63,7 +63,7 @@ services:
     networks:
       - app-network
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_AUTH_USER} -d ${POSTGRES_AUTH_DB}"]
+      test: ["CMD-SHELL", "pg_isready -U auth_user -d auth_db"]
       interval: 5s
       timeout: 5s
       retries: 5
@@ -83,10 +83,11 @@ services:
     networks:
       - app-network
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_CART_USER} -d ${POSTGRES_CART_DB}"]
+      test: ["CMD-SHELL", "pg_isready -U cart_user -d cart_db"]
       interval: 5s
       timeout: 5s
       retries: 5
+
 
   # 🛍️ Microservicio de catálogo
   catalog:
@@ -117,6 +118,7 @@ services:
     container_name: auth_service
     environment:
       DATABASE_URL: postgresql://auth_user:auth_password@postgres-auth:5432/auth_db
+      JWT_SECRET: auth_password
       NODE_ENV: production
       PORT: 3001
     ports:

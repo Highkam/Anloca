@@ -10,8 +10,8 @@ async function bootstrap() {
   
   // Swagger Configuration
   const config = new DocumentBuilder()
-    .setTitle('Catalog Service API - Clean Architecture')
-    .setDescription('Microservicio de catálogo con arquitectura limpia')
+    .setTitle('Catalog Service')
+    .setDescription('Microservicio de catálogo')
     .setVersion('1.0')
     .addTag('products')
     .build();
@@ -43,10 +43,10 @@ async function bootstrap() {
     }
   }
 
-  console.log(`
-🚀 Catalog Service is running!
-📡 Server: http://localhost:${actualPort}
-📚 Swagger Docs: http://localhost:${actualPort}/api/docs
-  `);
+    console.log(`
+Catalog Service is running!
+Server: http://localhost:${actualPort}
+Swagger Docs: http://localhost:${actualPort}/api/docs
+    `);
 }
 bootstrap();
