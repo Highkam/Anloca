@@ -47,59 +47,59 @@ export default function RegisterPage() {
       icon: Shield,
       title: "Secure Shopping",
       description: "Your data is always protected",
-      color: "from-green-500/20 to-emerald-500/20",
+      color: "from-[#c879ff]/30 to-[#d689ff]/20",
     },
     {
       icon: Sparkles,
       title: "Early Access",
       description: "Be first to shop new collections",
-      color: "from-amber-500/20 to-orange-500/20",
+      color: "from-[#e498ff]/30 to-[#f2a8ff]/20",
     },
   ]
 
   return (
     <div className="min-h-screen grid lg:grid-cols-2">
-      <div className="flex items-center justify-center p-8 lg:p-12 bg-gradient-to-br from-[#fefdfb] to-[#f9f7f4] relative overflow-hidden">
+      <div className="flex items-center justify-center p-8 lg:p-12 bg-gradient-to-br from-[#f8f6ff] to-[#f3efff] relative overflow-hidden">
         {/* Subtle Background Elements */}
-        <div className="absolute top-0 left-0 w-96 h-96 bg-[#e7ddd1]/30 rounded-full blur-3xl" />
-        <div className="absolute bottom-0 right-0 w-96 h-96 bg-[#415444]/5 rounded-full blur-3xl" />
+        <div className="absolute top-0 left-0 w-96 h-96 bg-[#A564D3]/20 rounded-full blur-3xl" />
+        <div className="absolute bottom-0 right-0 w-96 h-96 bg-[#b66ee8]/10 rounded-full blur-3xl" />
 
         <div className="w-full max-w-md space-y-8 relative z-10">
           {/* Logo */}
           <div className="flex items-center gap-3">
-            <div className="p-2 bg-[#415444] rounded-xl shadow-lg relative">
-              <div className="absolute inset-0 bg-[#415444] rounded-xl blur-xl opacity-50" />
+            <div className="p-2 bg-gradient-to-br from-[#a564d3] to-[#b66ee8] rounded-xl shadow-lg relative">
+              <div className="absolute inset-0 bg-gradient-to-br from-[#a564d3] to-[#b66ee8] rounded-xl blur-xl opacity-50" />
               <ShoppingBag className="h-6 w-6 text-white relative z-10" />
             </div>
-            <span className="text-2xl font-serif text-[#415444] font-semibold">Anloca</span>
+            <span className="text-2xl text-[#a564d3] font-semibold">Handy</span>
           </div>
 
           {/* Enhanced Progress Indicator */}
           <div className="space-y-4">
             <div className="flex items-center justify-between text-sm font-bold">
-              <span className={step >= 1 ? "text-[#415444]" : "text-muted-foreground"}>
+              <span className={step >= 1 ? "text-[#a564d3]" : "text-muted-foreground"}>
                 {step === 1 ? "→ Personal Info" : "✓ Personal Info"}
               </span>
-              <span className={step >= 2 ? "text-[#415444]" : "text-muted-foreground"}>
+              <span className={step >= 2 ? "text-[#a564d3]" : "text-muted-foreground"}>
                 {step === 2 ? "→ Account Details" : "Account Details"}
               </span>
             </div>
             <div className="flex gap-2">
               <div
-                className={`h-2.5 flex-1 rounded-full transition-all shadow-sm ${step >= 1 ? "bg-[#415444]" : "bg-muted"}`}
+                className={`h-2.5 flex-1 rounded-full transition-all shadow-sm ${step >= 1 ? "bg-gradient-to-r from-[#a564d3] to-[#b66ee8]" : "bg-gradient-to-r from-[#f2a8ff]/30 to-[#ffc4ff]/30"}`}
               />
               <div
-                className={`h-2.5 flex-1 rounded-full transition-all shadow-sm ${step >= 2 ? "bg-[#415444]" : "bg-muted"}`}
+                className={`h-2.5 flex-1 rounded-full transition-all shadow-sm ${step >= 2 ? "bg-gradient-to-r from-[#a564d3] to-[#b66ee8]" : "bg-gradient-to-r from-[#f2a8ff]/30 to-[#ffc4ff]/30"}`}
               />
             </div>
           </div>
 
           {/* Enhanced Header */}
           <div className="space-y-4">
-            <div className="inline-block px-4 py-2 bg-[#e7ddd1]/50 backdrop-blur-sm rounded-full border border-[#415444]/10">
-              <span className="text-sm font-semibold text-[#415444]">Start Your Journey</span>
+            <div className="inline-block px-4 py-2 bg-[#c879ff]/20 backdrop-blur-sm rounded-full border border-[#a564d3]/20">
+              <span className="text-sm font-semibold text-[#a564d3]">Start Your Journey</span>
             </div>
-            <h2 className="text-5xl lg:text-6xl font-serif text-foreground leading-tight text-balance font-bold">
+            <h2 className="text-5xl lg:text-6xl text-foreground leading-tight text-balance font-bold">
               {step === 1 ? "Join our community" : "Almost there!"}
             </h2>
             <p className="text-lg text-muted-foreground text-pretty leading-relaxed">
@@ -115,7 +115,7 @@ export default function RegisterPage() {
               <Button
                 type="button"
                 variant="outline"
-                className="w-full h-14 border-2 hover:border-[#415444] hover:bg-[#415444]/5 transition-all bg-white shadow-sm hover:shadow-md"
+                className="w-full h-14 border-2 hover:border-[#a564d3] hover:bg-[#a564d3]/5 transition-all bg-white shadow-sm hover:shadow-md"
               >
                 <svg className="mr-2 h-5 w-5" viewBox="0 0 24 24">
                   <path
@@ -140,7 +140,7 @@ export default function RegisterPage() {
               <Button
                 type="button"
                 variant="outline"
-                className="w-full h-14 border-2 hover:border-[#415444] hover:bg-[#415444]/5 transition-all bg-white shadow-sm hover:shadow-md"
+                className="w-full h-14 border-2 hover:border-[#a564d3] hover:bg-[#a564d3]/5 transition-all bg-white shadow-sm hover:shadow-md"
               >
                 <svg className="mr-2 h-5 w-5" viewBox="0 0 24 24" fill="currentColor">
                   <path d="M17.05 20.28c-.98.95-2.05.8-3.08.35-1.09-.46-2.09-.48-3.24 0-1.44.62-2.2.44-3.06-.35C2.79 15.25 3.51 7.59 9.05 7.31c1.35.07 2.29.74 3.08.8 1.18-.24 2.31-.93 3.57-.84 1.51.12 2.65.72 3.4 1.8-3.12 1.87-2.38 5.98.48 7.13-.57 1.5-1.31 2.99-2.54 4.09l.01-.01zM12.03 7.25c-.15-2.23 1.66-4.07 3.74-4.25.29 2.58-2.34 4.5-3.74 4.25z" />
@@ -157,7 +157,7 @@ export default function RegisterPage() {
                 <span className="w-full border-t-2 border-border" />
               </div>
               <div className="relative flex justify-center text-sm">
-                <span className="bg-gradient-to-br from-[#fefdfb] to-[#f9f7f4] px-6 py-2 text-muted-foreground font-semibold rounded-full border border-border shadow-sm">
+                <span className="bg-gradient-to-br from-[#f8f6ff] to-[#f3efff] px-6 py-2 text-muted-foreground font-semibold rounded-full border border-border shadow-sm">
                   Or with email
                 </span>
               </div>
@@ -177,7 +177,7 @@ export default function RegisterPage() {
                       id="firstName"
                       type="text"
                       placeholder="John"
-                      className="h-14 text-base border-2 focus:border-[#415444] shadow-sm bg-white"
+                      className="h-14 text-base border-2 focus:border-[#a564d3] shadow-sm bg-white"
                       value={formData.firstName}
                       onChange={(e) => setFormData({ ...formData, firstName: e.target.value })}
                       required
@@ -191,7 +191,7 @@ export default function RegisterPage() {
                       id="lastName"
                       type="text"
                       placeholder="Doe"
-                      className="h-14 text-base border-2 focus:border-[#415444] shadow-sm bg-white"
+                      className="h-14 text-base border-2 focus:border-[#a564d3] shadow-sm bg-white"
                       value={formData.lastName}
                       onChange={(e) => setFormData({ ...formData, lastName: e.target.value })}
                       required
@@ -207,7 +207,7 @@ export default function RegisterPage() {
                     id="email"
                     type="email"
                     placeholder="name@example.com"
-                    className="h-14 text-base border-2 focus:border-[#415444] shadow-sm bg-white"
+                    className="h-14 text-base border-2 focus:border-[#a564d3] shadow-sm bg-white"
                     value={formData.email}
                     onChange={(e) => setFormData({ ...formData, email: e.target.value })}
                     required
@@ -226,7 +226,7 @@ export default function RegisterPage() {
                     id="password"
                     type="password"
                     placeholder="Minimum 8 characters"
-                    className="h-14 text-base border-2 focus:border-[#415444] shadow-sm bg-white"
+                    className="h-14 text-base border-2 focus:border-[#a564d3] shadow-sm bg-white"
                     value={formData.password}
                     onChange={(e) => setFormData({ ...formData, password: e.target.value })}
                     required
@@ -235,7 +235,7 @@ export default function RegisterPage() {
                   <p className="text-sm text-muted-foreground font-medium">Must be at least 8 characters long</p>
                 </div>
 
-                <div className="flex items-start space-x-3 p-5 bg-[#e7ddd1]/30 backdrop-blur-sm rounded-xl border border-[#415444]/10">
+                <div className="flex items-start space-x-3 p-5 bg-[#A564D3]/20 backdrop-blur-sm rounded-xl border border-[#415444]/10">
                   <Checkbox
                     id="terms"
                     checked={formData.agreeToTerms}
@@ -244,11 +244,11 @@ export default function RegisterPage() {
                   />
                   <label htmlFor="terms" className="text-base leading-relaxed cursor-pointer font-medium">
                     I agree to the{" "}
-                    <Link href="/terms" className="text-[#415444] hover:underline font-bold">
+                    <Link href="/terms" className="text-[#a564d3] hover:underline font-bold">
                       Terms of Service
                     </Link>{" "}
                     and{" "}
-                    <Link href="/privacy" className="text-[#415444] hover:underline font-bold">
+                    <Link href="/privacy" className="text-[#a564d3] hover:underline font-bold">
                       Privacy Policy
                     </Link>
                   </label>
@@ -270,7 +270,7 @@ export default function RegisterPage() {
               )}
               <Button
                 type="submit"
-                className="flex-1 h-14 bg-[#415444] hover:bg-[#2d3b2f] text-base font-bold group shadow-lg hover:shadow-xl transition-all"
+                className="flex-1 h-14 bg-gradient-to-r from-[#a564d3] to-[#b66ee8] hover:from-[#b66ee8] hover:to-[#c879ff] text-base font-bold group shadow-lg hover:shadow-xl transition-all"
               >
                 {step === 1 ? "Continue to next step" : "Create my account"}
                 <ArrowRight className="ml-2 h-5 w-5 group-hover:translate-x-1 transition-transform" />
@@ -282,7 +282,7 @@ export default function RegisterPage() {
           <div className="text-center pt-4 pb-2">
             <p className="text-base text-muted-foreground">
               Already have an account?{" "}
-              <Link href="/login" className="text-[#415444] font-bold hover:underline hover:text-[#2d3b2f]">
+              <Link href="/login" className="text-[#a564d3] font-bold hover:underline hover:text-[#b66ee8]">
                 Sign in
               </Link>
             </p>
@@ -290,12 +290,12 @@ export default function RegisterPage() {
         </div>
       </div>
 
-      <div className="relative hidden lg:flex flex-col justify-between p-12 bg-gradient-to-br from-[#e7ddd1] via-[#dfd5c9] to-[#d7cdc1] overflow-hidden">
+      <div className="relative hidden lg:flex flex-col justify-between p-12 bg-gradient-to-br from-[#A564D3] via-[#B66EE8] to-[#A564D3] overflow-hidden">
         {/* Animated Background Pattern */}
         <div className="absolute inset-0">
-          <div className="absolute top-20 right-20 w-64 h-64 rounded-full bg-[#415444]/10 blur-3xl animate-pulse" />
-          <div className="absolute bottom-20 left-20 w-96 h-96 rounded-full bg-[#415444]/10 blur-3xl animate-pulse delay-700" />
-          <div className="absolute top-1/2 right-1/4 w-[500px] h-[500px] rounded-full bg-gradient-to-br from-[#415444]/5 to-transparent blur-2xl" />
+          <div className="absolute top-20 right-20 w-64 h-64 rounded-full bg-[#f2a8ff]/20 blur-3xl animate-pulse" />
+          <div className="absolute bottom-20 left-20 w-96 h-96 rounded-full bg-[#e498ff]/20 blur-3xl animate-pulse delay-700" />
+          <div className="absolute top-1/2 right-1/4 w-[500px] h-[500px] rounded-full bg-gradient-to-br from-[#c879ff]/10 to-transparent blur-2xl" />
         </div>
 
         {/* Decorative Grid Pattern */}
@@ -303,8 +303,8 @@ export default function RegisterPage() {
           className="absolute inset-0 opacity-[0.03]"
           style={{
             backgroundImage: `
-              linear-gradient(to right, #415444 1px, transparent 1px),
-              linear-gradient(to bottom, #415444 1px, transparent 1px)
+              linear-gradient(to right, #a564d3 1px, transparent 1px),
+              linear-gradient(to bottom, #a564d3 1px, transparent 1px)
             `,
             backgroundSize: "60px 60px",
           }}
@@ -312,41 +312,41 @@ export default function RegisterPage() {
 
         {/* Floating Product Images */}
         <div className="absolute inset-0 pointer-events-none">
-          <div className="absolute top-1/4 left-12 w-56 h-56 rounded-3xl bg-white/50 backdrop-blur-lg p-5 shadow-2xl animate-float border border-white/60">
+          <div className="absolute top-[6%] right-16 w-80 h-80 rounded-3xl bg-white/50 backdrop-blur-lg p-5 shadow-2xl animate-float border border-white/60">
             <Image
-              src="/images/the-20best-20media-20tote-20bags-20ranked.jpeg"
-              alt="Tote Bag Collection 1"
-              width={220}
-              height={220}
+              src="/images/items-varios.jpeg"
+              alt="items-varios"
+              width={300}
+              height={300}
               className="w-full h-full object-cover rounded-2xl"
             />
           </div>
-          <div className="absolute bottom-1/4 right-16 w-48 h-48 rounded-3xl bg-white/50 backdrop-blur-lg p-4 shadow-2xl animate-float-delayed border border-white/60">
+          <div className="absolute top-[14%] left-20 w-60 h-60 rounded-3xl bg-white/50 backdrop-blur-lg p-4 shadow-2xl animate-float-delayed border border-white/60">
             <Image
-              src="/images/index-20vanderbrand.jpeg"
-              alt="Tote Bag Collection 2"
-              width={180}
-              height={180}
+              src="/images/fashion.jpeg"
+              alt="fashion"
+              width={240}
+              height={240}
               className="w-full h-full object-cover rounded-2xl"
             />
           </div>
         </div>
 
         {/* Content */}
-        <div className="relative z-10 space-y-12">
+        <div className="relative z-10 space-y-12 mt-72">
           {/* Enhanced Header with Badge */}
           <div className="space-y-6">
             <div className="inline-flex items-center gap-3 px-5 py-3 bg-white/70 backdrop-blur-md rounded-full shadow-lg border border-white/60">
-              <div className="w-8 h-8 rounded-full bg-[#415444] flex items-center justify-center">
+              <div className="w-8 h-8 rounded-full bg-gradient-to-br from-[#a564d3] to-[#b66ee8] flex items-center justify-center">
                 <Gift className="w-4 h-4 text-white" />
               </div>
-              <span className="text-sm font-bold text-[#415444]">15% OFF YOUR FIRST ORDER</span>
+              <span className="text-sm font-bold text-[#a564d3]">15% OFF YOUR FIRST ORDER</span>
             </div>
-            <h1 className="text-6xl font-serif text-[#415444] leading-tight text-balance font-bold">
+            <h1 className="text-6xl text-white leading-tight text-balance font-bold">
               Elevate your{" "}
               <span className="relative inline-block">
                 <span className="relative z-10">everyday style</span>
-                <span className="absolute bottom-2 left-0 w-full h-4 bg-[#415444]/20 -rotate-1" />
+                <span className="absolute bottom-2 left-0 w-full h-4 bg-white/30 -rotate-1" />
               </span>
             </h1>
             <p className="text-xl text-[#415444]/80 leading-relaxed max-w-lg text-pretty font-medium">
@@ -367,7 +367,7 @@ export default function RegisterPage() {
                   <benefit.icon className="w-7 h-7 text-[#415444]" />
                 </div>
                 <div>
-                  <h3 className="font-serif text-lg text-[#415444] font-bold mb-1">{benefit.title}</h3>
+                  <h3 className="text-lg text-[#415444] font-bold mb-1">{benefit.title}</h3>
                   <p className="text-sm text-[#415444]/70 font-medium">{benefit.description}</p>
                 </div>
               </div>
@@ -383,7 +383,7 @@ export default function RegisterPage() {
                 <Star key={i} className="w-5 h-5 text-[#415444] fill-[#415444]" />
               ))}
             </div>
-            <p className="text-lg font-serif text-[#415444] mb-5 leading-relaxed italic font-medium">
+            <p className="text-lg text-[#415444] mb-5 leading-relaxed italic font-medium">
               "The quality is exceptional and the designs are timeless. Best purchase I've made this year! The customer
               service is outstanding."
             </p>

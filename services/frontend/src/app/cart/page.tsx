@@ -14,16 +14,18 @@ import { Separator } from "@/core/ui/separator"
 import { toast } from "@/core/hooks/use-toast"
 import { useCart } from "@/core/cart/cart-context"
 import { useAuth } from "@/infraestructure/auth/auth-provider"
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/core/ui/dialog"
 
 export default function CartPage() {
+  const [showAuthRequired, setShowAuthRequired] = useState(false)
   const { cartItems, updateQuantity, calculateTotal } = useCart()
-  const { user, isAuthenticated } = useAuth()
+  const { isAuthenticated } = useAuth()
   const router = useRouter()
 
   // Handler para rutas protegidas
   const handleProtectedRoute = (route: string) => {
     if (!isAuthenticated) {
-      router.push('/login')
+      setShowAuthRequired(true)
       return
     }
     router.push(route)
@@ -36,7 +38,7 @@ export default function CartPage() {
   // Handler para checkout que requiere autenticación
   const handleCheckout = () => {
     if (!isAuthenticated) {
-      router.push('/login')
+      setShowAuthRequired(true)
       return
     }
     // Proceder con checkout - aquí se integraría con el servicio de pagos
@@ -51,13 +53,13 @@ export default function CartPage() {
     <div className="flex min-h-screen bg-[#fcfdfd]">
       {/* Sidebar */}
       <aside className="w-50 border-r px-6 py-8 bg-[#f8f9fa]/95 sticky top-0 h-screen">
-        <div className="mb-8">
+        <div className="mb-8 flex justify-center pl-4">
           <Image
-            src="/images/anloca-logo.svg"
-            alt="Anloca"
-            width={200}
-            height={60}
-            className="h-20 w-auto"
+            src="/images/logo.png"
+            alt="logo"
+            width={280}
+            height={84}
+            className="h-28 w-auto"
           />
         </div>
         <nav className="space-y-6">
@@ -251,6 +253,39 @@ export default function CartPage() {
           </div>
         </div>
       </main>
+
+      {/* Auth Required Dialog */}
+      <Dialog open={showAuthRequired} onOpenChange={setShowAuthRequired}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2">
+              <ShoppingBag className="h-5 w-5 text-[#A564D3]" />
+              Sign in to continue
+            </DialogTitle>
+            <DialogDescription>
+              You need to sign in to access this feature and make purchases.
+            </DialogDescription>
+          </DialogHeader>
+          <div className="flex flex-col gap-4 mt-4">
+            <Button 
+              onClick={() => {
+                setShowAuthRequired(false)
+                router.push('/login')
+              }}
+              className="bg-gradient-to-r from-[#A564D3] to-[#B66EE8] hover:from-[#B66EE8] hover:to-[#C879FF] text-white transition-all duration-200 hover:scale-105"
+            >
+              Sign In / Sign Up
+            </Button>
+            <Button 
+              variant="outline" 
+              onClick={() => setShowAuthRequired(false)}
+              className="border-gray-300 hover:bg-gray-50"
+            >
+              Continue Shopping
+            </Button>
+          </div>
+        </DialogContent>
+      </Dialog>
     </div>
   )
 }

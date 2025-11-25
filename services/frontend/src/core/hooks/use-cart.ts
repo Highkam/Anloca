@@ -4,7 +4,7 @@
 import { useState, useEffect } from 'react'
 import { cartService, Cart, CartProduct, CartWithProducts } from '@/infraestructure/cart/cart.service'
 import { catalogService, Product } from '@/infraestructure/catalog/catalog.service'
-import { useAuth } from '@/core/auth/auth-context'
+import { useAuth } from '@/infraestructure/auth/auth-provider'
 
 interface CartItem extends CartProduct {
   product?: Product

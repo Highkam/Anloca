@@ -37,6 +37,15 @@ export default function SupportPage() {
   const { isAuthenticated } = useAuth()
   const router = useRouter()
 
+  // Handler para rutas protegidas
+  const handleProtectedRoute = (route: string) => {
+    if (!isAuthenticated) {
+      setShowAuthRequired(true)
+      return
+    }
+    router.push(route)
+  }
+
   const handleSubmitTicket = () => {
     if (!isAuthenticated) {
       setShowAuthRequired(true)
@@ -89,11 +98,11 @@ export default function SupportPage() {
       <aside className="w-50 border-r px-6 py-8 bg-[#f8f9fa]/95 sticky top-0 h-screen">
         <div className="mb-8">
           <Image
-            src="/images/anloca-logo.svg"
-            alt="Anloca"
+            src="/images/logo.png"
+            alt="logo"
             width={200}
             height={60}
-            className="h-20 w-auto"
+            className="h-28 w-auto"
           />
         </div>
         <nav className="space-y-6">
@@ -104,20 +113,20 @@ export default function SupportPage() {
             <Home className="h-5 w-5" />
             Dashboard
           </Link>
-          <Link
-            href="/profile"
-            className="flex items-center gap-3 px-3 py-2 text-gray-500 transition-colors hover:text-gray-900"
+          <button
+            onClick={() => handleProtectedRoute('/profile')}
+            className="flex items-center gap-3 px-3 py-2 text-gray-500 transition-colors hover:text-gray-900 w-full text-left"
           >
             <User2 className="h-5 w-5" />
             Profile
-          </Link>
-          <Link
-            href="/settings"
-            className="flex items-center gap-3 px-3 py-2 text-gray-500 transition-colors hover:text-gray-900"
+          </button>
+          <button
+            onClick={() => handleProtectedRoute('/settings')}
+            className="flex items-center gap-3 px-3 py-2 text-gray-500 transition-colors hover:text-gray-900 w-full text-left"
           >
             <Settings className="h-5 w-5" />
             Settings
-          </Link>
+          </button>
           <Link
             href="/cart"
             className="flex items-center gap-3 px-3 py-2 text-gray-500 transition-colors hover:text-[#A564D3] hover:bg-[#FFC9FF]/20"

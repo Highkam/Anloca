@@ -18,7 +18,8 @@ import { AuthGuard } from "@/components/auth/AuthGuard"
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/core/ui/dialog"
 
 export default function Component() {
-  const { cartItems, addToCart, updateQuantity, calculateTotal, isCartOpen, setIsCartOpen, showAuthRequired, setShowAuthRequired } = useCart()
+  const [showAuthRequired, setShowAuthRequired] = useState(false)
+  const { cartItems, addToCart, updateQuantity, calculateTotal, isCartOpen, setIsCartOpen } = useCart()
   const { user, isAuthenticated, logout } = useAuth()
   const { frequentOrders, loading: ordersLoading } = useFrequentOrders()
   const router = useRouter()
@@ -232,8 +233,8 @@ export default function Component() {
       <aside className="w-50 border-r px-6 py-8 bg-[#f8f9fa]/95 sticky top-0 h-screen">
         <div className="mb-8">
           <Image
-            src="/images/anloca-logo.svg"
-            alt="Anloca"
+            src="/images/logo.png"
+            alt="logo"
             width={200}
             height={60}
             className="h-20 w-auto"
