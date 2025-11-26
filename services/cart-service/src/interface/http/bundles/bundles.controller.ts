@@ -10,6 +10,7 @@ import { DeleteBundleUseCase } from '../../../core/bundles/application/usecases/
 import { AdminRoleGuard } from '../../../common/guards/admin-role.guard';
 import { BundleDto } from '../../../core/bundles/application/dto/bundle.dto';
 import { SessionRequiredGuard } from '../../../common/guards/session-required.guard';
+import { EventBusService } from '../../../infrastructure/eventBus/eventBus.service';
 
 @ApiTags('bundles')
 @Controller('bundles')
@@ -20,6 +21,7 @@ export class BundlesController {
     private readonly getUseCase: GetBundleUseCase,
     private readonly listUseCase: ListBundlesUseCase,
     private readonly deleteUseCase: DeleteBundleUseCase,
+    private readonly eventBus: EventBusService,
   ) {}
 
   @Post()
@@ -29,6 +31,7 @@ export class BundlesController {
   @ApiResponse({ status: 201, description: 'Bundle created', type: (BundleMapper as any).toDto.constructor })
   async create(@Body() dto: CreateBundleDto) {
     const bundle = await this.createUseCase.execute({ userId: dto.userId, name: dto.name, recurrenceId: dto.recurrenceId });
+    await this.eventBus.publish('BundleCreated', { userId: bundle.userId, bundleId: bundle.id, name: bundle.name, recurrenceId: bundle.recurrenceId });
     return BundleMapper.toDto(bundle);
   }
 

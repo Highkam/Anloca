@@ -7,6 +7,7 @@ import { CartProductController } from './cart-product.controller';
 import { CART_REPOSITORY } from '../../../core/carts/application/tokens';
 import { PrismaCartRepository } from '../../../infrastructure/prisma/prisma-cart.repository';
 import { PrismaModule } from '../../../infrastructure/prisma.module';
+import { EventBusService } from '../../../infrastructure/eventBus/eventBus.service';
 import { DeleteCartProductUseCase } from '../../../core/cart-products/application/usecases/delete-cart-product.usecase';
 import { CatalogService } from '../../../common/services/catalog.service';
 import { CatalogClientService } from '../../../infrastructure/catalog.client';
@@ -24,6 +25,7 @@ import { AuthClientService } from '../../../infrastructure/auth.client';
     CatalogService,
     AuthClientService,
     CatalogClientService,
+    EventBusService,
   ],
 })
 export class CartProductModule {}

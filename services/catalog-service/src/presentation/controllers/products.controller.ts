@@ -1,5 +1,6 @@
 // src/presentation/controllers/products.controller.ts
 import { Controller, Get, Post, Body, Patch, Param, Delete, UseInterceptors } from '@nestjs/common';
+import { EventBusService } from '../../infrastructure/eventBus.service';
 import { ApiTags, ApiOperation, ApiResponse } from '@nestjs/swagger';
 import { CreateProductUseCase } from '../../application/use-cases/create-product.use-case';
 import { GetProductsUseCase } from '../../application/use-cases/get-products.use-case';
@@ -30,6 +31,7 @@ export class ProductsController {
     private readonly getProductUseCase: GetProductUseCase,
     private readonly updateProductUseCase: UpdateProductUseCase,
     private readonly deleteProductUseCase: DeleteProductUseCase,
+    private readonly eventBus: EventBusService,
   ) {}
 
   @Post()
@@ -60,8 +62,10 @@ export class ProductsController {
   @ApiResponse({ status: 200, description: 'Product updated successfully' })
   @ApiResponse({ status: 400, description: 'Bad request' })
   @ApiResponse({ status: 404, description: 'Product not found' })
-  update(@Param('id') id: string, @Body() updateProductDto: UpdateProductDto): Promise<Product> {
-    return this.updateProductUseCase.execute(+id, updateProductDto);
+  async update(@Param('id') id: string, @Body() updateProductDto: UpdateProductDto): Promise<Product> {
+    const updatedProduct = await this.updateProductUseCase.execute(+id, updateProductDto);
+    await this.eventBus.publish('ProductUpdated', { id_product: updatedProduct.id_product, ...updateProductDto });
+    return updatedProduct;
   }
 
   @Delete(':id')

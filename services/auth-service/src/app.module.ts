@@ -10,10 +10,11 @@ import { RoleRepository } from './infrastructure/prisma/role.repository';
 import { ListRolesUseCase } from './application/use-cases/list-roles.use-case';
 import { UpdateRoleUseCase } from './application/use-cases/update-role.use-case';
 import { DeleteRoleUseCase } from './application/use-cases/delete-role.use-case';
+import { EventBusService } from './infrastructure/eventBus.service';
 
 @Module({
   imports: [],
   controllers: [AppController, AuthController],
-  providers: [AppService, LoginUseCase, CreateUserUseCase, CreateRoleUseCase, UserRepository, RoleRepository, ListRolesUseCase, UpdateRoleUseCase, DeleteRoleUseCase],
+  providers: [AppService, LoginUseCase, CreateUserUseCase, CreateRoleUseCase, UserRepository, RoleRepository, ListRolesUseCase, UpdateRoleUseCase, DeleteRoleUseCase, EventBusService],
 })
 export class AppModule {}

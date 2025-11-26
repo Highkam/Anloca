@@ -25,6 +25,7 @@ import { CreateRoleUseCase } from '../application/use-cases/create-role.use-case
 import { ListRolesUseCase } from '../application/use-cases/list-roles.use-case';
 import { UpdateRoleUseCase } from '../application/use-cases/update-role.use-case';
 import { DeleteRoleUseCase } from '../application/use-cases/delete-role.use-case';
+import { EventBusService } from 'src/infrastructure/eventBus.service';
 
 describe('AuthController', () => {
   /**
@@ -37,6 +38,7 @@ describe('AuthController', () => {
   let listRolesUseCase: jest.Mocked<ListRolesUseCase>;
   let updateRoleUseCase: jest.Mocked<UpdateRoleUseCase>;
   let deleteRoleUseCase: jest.Mocked<DeleteRoleUseCase>;
+  let eventBusMock: any;
 
   beforeEach(() => {
     /**
@@ -49,8 +51,10 @@ describe('AuthController', () => {
     listRolesUseCase = { execute: jest.fn() } as any;
     updateRoleUseCase = { execute: jest.fn() } as any;
     deleteRoleUseCase = { execute: jest.fn() } as any;
+    eventBusMock = { publish: jest.fn() };
     authController = new AuthController(
       loginUseCase,
+      eventBusMock,
       createUserUseCase,
       createRoleUseCase,
       listRolesUseCase,

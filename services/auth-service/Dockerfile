@@ -6,6 +6,7 @@ ENV NPM_CONFIG_FUND=false \
 COPY package*.json ./
 COPY package-lock.json ./
 RUN npm install --silent --no-audit --no-fund --prefer-offline
+RUN npm install amqplib axios --save
 RUN npm install express jsonwebtoken @nestjs/swagger --save
 
 FROM node:20-alpine AS builder

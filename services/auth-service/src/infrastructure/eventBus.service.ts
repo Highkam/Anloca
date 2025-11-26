@@ -1,9 +1,8 @@
 import * as amqp from 'amqplib';
 import { Injectable, OnModuleInit } from '@nestjs/common';
-import { IEventBus } from '../../interface/event-bus.interface';
 
 @Injectable()
-export class EventBusService implements IEventBus, OnModuleInit {
+export class EventBusService implements OnModuleInit {
   private connection;
   private channel;
 
@@ -30,19 +29,5 @@ export class EventBusService implements IEventBus, OnModuleInit {
     }
     await this.channel.assertExchange('events', 'topic', { durable: false });
     this.channel.publish('events', eventType, Buffer.from(JSON.stringify(data)));
-  }
-
-  async subscribe(eventType: string, handler: (data: any) => void) {
-    if (!this.channel) {
-      await this.connect();
-    }
-    await this.channel.assertExchange('events', 'topic', { durable: false });
-    const q = await this.channel.assertQueue('', { exclusive: true });
-    this.channel.bindQueue(q.queue, 'events', eventType);
-    this.channel.consume(q.queue, (msg) => {
-      if (msg) {
-        handler(JSON.parse(msg.content.toString()));
-      }
-    }, { noAck: true });
   }
 }
