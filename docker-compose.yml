@@ -117,7 +117,7 @@ services:
       retries: 5
 
 
-  # 🛍️ Microservicio de catálogo
+  # Microservicio de catálogo
   catalog:
     build:
       context: ./services/catalog-service
@@ -177,6 +177,8 @@ services:
     depends_on:
       postgres-cart:
         condition: service_healthy
+      rabbitmq:
+        condition: service_started
     networks:
       - app-network
     volumes:
@@ -205,6 +207,20 @@ services:
     volumes:
       - ./services/notification-service/src:/app/src
       - ./services/notification-service/prisma:/app/prisma
+  
+  # RabbitMQ
+  rabbitmq:
+    image: rabbitmq:3-management
+    ports:
+      - "5672:5672"
+      - "15672:15672" # Interfaz web
+    networks:
+      - app-network
+    healthcheck:
+      test: ["CMD", "rabbitmq-diagnostics", "ping"]
+      interval: 5s
+      timeout: 10s
+      retries: 10
 
 # Volúmenes para persistencia
 volumes:

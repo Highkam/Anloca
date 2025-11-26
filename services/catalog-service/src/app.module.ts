@@ -2,8 +2,9 @@
 import { Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
 import { PrismaModule } from './infraestructure/database/prisma/prisma.module';
-import { AppController } from './presentation/controllers/app.controller'; // ← Agregar esta línea
+import { AppController } from './presentation/controllers/app.controller';
 import { ProductsController } from './presentation/controllers/products.controller';
+import { EventBusService } from './infrastructure/eventBus.service';
 import { CreateProductUseCase } from './application/use-cases/create-product.use-case';
 import { GetProductsUseCase } from './application/use-cases/get-products.use-case';
 import { GetProductUseCase } from './application/use-cases/get-product.use-case';
@@ -32,6 +33,7 @@ import { ProductPrismaRepository } from './infraestructure/database/repositories
       provide: 'ProductRepository',
       useClass: ProductPrismaRepository,
     },
+    EventBusService,
   ],
 })
 export class AppModule {}

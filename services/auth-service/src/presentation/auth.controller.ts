@@ -8,6 +8,7 @@ import { UpdateRoleUseCase } from '../application/use-cases/update-role.use-case
 import { DeleteRoleUseCase } from '../application/use-cases/delete-role.use-case';
 import { AdminRoleGuard } from './guards/admin-role.guard';
 import { ApiBearerAuth } from '@nestjs/swagger';
+import { EventBusService } from '../infrastructure/eventBus.service';
 
 class LoginDto {
   @ApiProperty({ example: 'user@example.com' })
@@ -116,6 +117,7 @@ export class AuthController {
     }
   constructor(
     private readonly loginUseCase: LoginUseCase,
+    private readonly eventBus: EventBusService,
     private readonly createUserUseCase: CreateUserUseCase,
     private readonly createRoleUseCase: CreateRoleUseCase,
     private readonly listRolesUseCase: ListRolesUseCase,
@@ -183,6 +185,9 @@ export class AuthController {
   async login(@Body() dto: LoginDto): Promise<LoginResponseDto> {
     const result: any = await this.loginUseCase.execute(dto.email, dto.password);
     const id = result?.id_user ?? result?.id ?? null;
+    if (id) {
+      await this.eventBus.publish('UserAuthenticated', { id, email: dto.email });
+    }
     return { id, jwt: result.jwt };
   }
 

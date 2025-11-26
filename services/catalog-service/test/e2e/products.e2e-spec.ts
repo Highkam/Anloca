@@ -217,4 +217,33 @@ describe('ProductsController (e2e)', () => {
       expect(dbProduct?.is_active).toBe(false);
     });
   });
+
+  describe('RabbitMQ EventBus', () => {
+    it('should subscribe and receive ProductUpdated event', async (done) => {
+      const amqp = require('amqplib');
+      const eventType = 'ProductUpdated';
+      const testPayload = { id_product: 999, name: 'Test Updated', price: 123 };
+
+      const conn = await amqp.connect('amqp://rabbitmq');
+      const channel = await conn.createChannel();
+      await channel.assertExchange('events', 'topic', { durable: false });
+      const q = await channel.assertQueue('', { exclusive: true });
+      await channel.bindQueue(q.queue, 'events', eventType);
+
+      channel.consume(q.queue, (msg) => {
+        if (msg) {
+          const data = JSON.parse(msg.content.toString());
+          expect(data.id_product).toBe(testPayload.id_product);
+          expect(data.name).toBe(testPayload.name);
+          expect(data.price).toBe(testPayload.price);
+          channel.close();
+          conn.close();
+          done();
+        }
+      }, { noAck: true });
+
+      // Publish test event
+      channel.publish('events', eventType, Buffer.from(JSON.stringify(testPayload)));
+    });
+  });
 });

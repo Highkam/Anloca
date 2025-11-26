@@ -8,6 +8,7 @@ import { DeleteBundleUseCase } from '../../../core/bundles/application/usecases/
 import { PrismaBundleRepository } from '../../../infrastructure/prisma/prisma-bundle.repository';
 import { BUNDLE_REPOSITORY } from '../../../core/bundles/application/tokens';
 import { PeriodsModule } from '../periods/periods.module';
+import { EventBusService } from '../../../infrastructure/eventBus/eventBus.service';
 
 @Module({
   imports: [PeriodsModule],
@@ -18,6 +19,7 @@ import { PeriodsModule } from '../periods/periods.module';
     GetBundleUseCase,
     ListBundlesUseCase,
     DeleteBundleUseCase,
+    EventBusService,
     PrismaBundleRepository,
     { provide: BUNDLE_REPOSITORY, useClass: PrismaBundleRepository },
   ],
