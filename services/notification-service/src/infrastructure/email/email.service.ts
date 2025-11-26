@@ -14,6 +14,12 @@ export class EmailService {
 
   constructor() {
     // Configurar transporter (puedes usar Gmail, SendGrid, etc.)
+    this.logger.log(`📧 SMTP Configuration:`);
+    this.logger.log(`   Host: ${process.env.SMTP_HOST || 'smtp.gmail.com'}`);
+    this.logger.log(`   Port: ${process.env.SMTP_PORT || '587'}`);
+    this.logger.log(`   User: ${process.env.SMTP_USER || 'NOT_SET'}`);
+    this.logger.log(`   Pass: ${process.env.SMTP_PASS ? '***SET***' : 'NOT_SET'}`);
+    
     this.transporter = nodemailer.createTransport({
       host: process.env.SMTP_HOST || 'smtp.gmail.com',
       port: parseInt(process.env.SMTP_PORT || '587'),
@@ -36,18 +42,28 @@ export class EmailService {
         return;
       }
 
+      this.logger.log(`📤 Attempting to send email to: ${options.to}`);
+      this.logger.log(`   From: ${process.env.SMTP_USER}`);
+      this.logger.log(`   Subject: ${options.subject}`);
+      
       // Enviar email real
       const info = await this.transporter.sendMail({
-        from: process.env.SMTP_FROM || '"Notification Service" <noreply@example.com>',
+        from: `"Notification Service" <${process.env.SMTP_USER}>`,
         to: options.to,
         subject: options.subject,
         html: options.html,
       });
 
-      this.logger.log(`📧 Email sent successfully to ${options.to}`);
-      this.logger.debug(`   Message ID: ${info.messageId}`);
-    } catch (error) {
-      this.logger.error(`❌ Failed to send email: ${error.message}`);
+      this.logger.log(`✅ Email sent successfully to ${options.to}`);
+      this.logger.log(`   Message ID: ${info.messageId}`);
+      this.logger.log(`   Response: ${info.response}`);
+      this.logger.log(`   Accepted: ${JSON.stringify(info.accepted)}`);
+      this.logger.log(`   Rejected: ${JSON.stringify(info.rejected)}`);
+    } catch (error: any) {
+      this.logger.error(`❌ Failed to send email to ${options.to}`);
+      this.logger.error(`   Error: ${error.message}`);
+      this.logger.error(`   Code: ${error.code}`);
+      this.logger.error(`   Response: ${error.response}`);
       throw error;
     }
   }

@@ -178,7 +178,7 @@ services:
       postgres-cart:
         condition: service_healthy
       rabbitmq:
-        condition: service_started
+        condition: service_healthy
     networks:
       - app-network
     volumes:
@@ -206,14 +206,14 @@ services:
       SMTP_PORT: 587
       SMTP_USER: ${SMTP_USER:-}
       SMTP_PASS: ${SMTP_PASS:-}
-      SMTP_FROM: "Notification Service" <noreply@example.com>
+       
     ports:
       - "3003:3003"
     depends_on:
       postgres-notification:
         condition: service_healthy
       rabbitmq:
-        condition: service_started
+        condition: service_healthy
       redis:
         condition: service_started
     networks:
@@ -226,16 +226,21 @@ services:
   rabbitmq:
     image: rabbitmq:3-management
     container_name: rabbitmq
+    environment:
+      RABBITMQ_DEFAULT_USER: guest
+      RABBITMQ_DEFAULT_PASS: guest
+      RABBITMQ_DEFAULT_VHOST: /
     ports:
       - "5672:5672"
       - "15672:15672" # Interfaz web
     networks:
       - app-network
     healthcheck:
-      test: ["CMD", "rabbitmq-diagnostics", "ping"]
-      interval: 5s
+      test: ["CMD", "rabbitmq-diagnostics", "check_port_connectivity"]
+      interval: 10s
       timeout: 10s
       retries: 10
+      start_period: 40s
 
   # Redis para BullMQ
   redis:
