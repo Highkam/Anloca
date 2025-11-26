@@ -1,5 +1,5 @@
-import { Body, Controller, Delete, Get, Param, Post, ParseIntPipe, NotFoundException, UnauthorizedException, Req, Headers } from '@nestjs/common';
-import { ApiTags, ApiOperation, ApiResponse, ApiParam, ApiBadRequestResponse, ApiHeader } from '@nestjs/swagger';
+import { Controller, Get, Post, Delete, Param, Body, ParseIntPipe, NotFoundException, Headers, Req, UnauthorizedException, UseGuards } from '@nestjs/common';
+import { ApiTags, ApiOperation, ApiResponse, ApiParam, ApiBadRequestResponse, ApiHeader, ApiBearerAuth } from '@nestjs/swagger';
 import { CreateCartUseCase } from '../../../core/carts/application/usecases/create-cart.usecase';
 import { GetCartUseCase } from '../../../core/carts/application/usecases/get-cart.usecase';
 import { ListCartsUseCase, ListAllCartsUseCase } from '../../../core/carts/application/usecases/list-cart.usecase';
@@ -8,7 +8,8 @@ import { CartDto } from '../../../core/carts/application/dto/cart.dto';
 import { CreateCartDto } from '../../../core/carts/application/dto/create-cart.dto';
 import { CartMapper } from '../../../core/carts/application/mappers/cart.mapper';
 import { AuthClientService } from '../../../infrastructure/auth.client';
-import { sessionRequired } from '../../../common/decorators/session-required.decorator';
+import { SessionRequiredGuard } from '../../../common/guards/session-required.guard';
+import { AdminRoleGuard } from '../../../common/guards/admin-role.guard';
 
 @ApiTags('Carts')
 @Controller('carts')
@@ -23,23 +24,21 @@ export class CartController {
   ) {}
 
   @Post()
-  @sessionRequired()
+  @UseGuards(SessionRequiredGuard)
+  @ApiBearerAuth('access-token')
   @ApiOperation({ summary: 'Crear un carrito para un usuario' })
-  @ApiHeader({ name: 'x-session-token', description: 'Token de sesión', required: false })
   @ApiResponse({ status: 201, description: 'Carrito creado exitosamente', type: CartDto })
   @ApiBadRequestResponse({ description: 'Datos inválidos al crear carrito' })
-  async create(@Body() dto: CreateCartDto, @Headers('x-session-token') sessionToken?: string) {
-    let userId = dto.userId ?? null;
-    if (sessionToken) {
-      const session = await this.authClient.getSession(sessionToken);
-      userId = session?.id ?? userId;
-    }
-    if (!userId) throw new NotFoundException('User id not provided and session token not valid');
+  async create(@Body() dto: CreateCartDto, @Req() req: any) {
+    const userId = req.userId || dto.userId;
+    if (!userId) throw new NotFoundException('User id not provided');
     const cart = await this.createCart.execute(userId);
     return CartMapper.toDto(cart);
   }
 
   @Get('all')
+  @UseGuards(AdminRoleGuard)
+  @ApiBearerAuth('access-token')
   @ApiOperation({ summary: 'Listar todos los carritos' })
   @ApiResponse({ status: 200, description: 'Lista de todos los carritos', type: [CartDto] })
   async listAll() {
@@ -48,6 +47,8 @@ export class CartController {
   }
 
   @Get(':id')
+  @UseGuards(SessionRequiredGuard)
+  @ApiBearerAuth('access-token')
   @ApiOperation({ summary: 'Obtener un carrito por ID' })
   @ApiParam({ name: 'id', type: Number })
   @ApiResponse({ status: 200, description: 'Carrito encontrado', type: CartDto })
@@ -60,6 +61,8 @@ export class CartController {
   }
 
   @Get('user/:userId')
+  @UseGuards(SessionRequiredGuard)
+  @ApiBearerAuth('access-token')
   @ApiOperation({ summary: 'Listar todos los carritos de un usuario' })
   @ApiParam({ name: 'userId', type: Number })
   @ApiResponse({ status: 200, description: 'Lista de carritos', type: [CartDto] })
@@ -70,9 +73,9 @@ export class CartController {
   }
 
   @Delete(':id')
-  @sessionRequired()
+  @UseGuards(SessionRequiredGuard)
+  @ApiBearerAuth('access-token')
   @ApiOperation({ summary: 'Eliminar un carrito por ID' })
-  @ApiHeader({ name: 'x-session-token', description: 'Token de sesión', required: true })
   @ApiParam({ name: 'id', type: Number })
   @ApiResponse({ status: 200, description: 'Carrito eliminado' })
   @ApiResponse({ status: 404, description: 'Carrito no encontrado' })
@@ -80,11 +83,6 @@ export class CartController {
   async delete(@Param('id', ParseIntPipe) id: number, @Req() req?: any) {
     const cart = await this.getCart.execute(id);
     if (!cart) throw new NotFoundException(`Cart con id ${id} no encontrado`);
-
-    const validatedUserId = req?.userId ?? null;
-    if (validatedUserId !== null && cart.userId !== validatedUserId) {
-      throw new UnauthorizedException('No tienes permiso para eliminar este carrito');
-    }
 
     await this.deleteCart.execute(id);
     return { message: `Cart con id ${id} eliminado` };

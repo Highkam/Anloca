@@ -1,5 +1,5 @@
-import { Controller, Post, Body, Get, Param, ParseIntPipe, Put, Delete } from '@nestjs/common';
-import { ApiTags, ApiResponse, ApiBody } from '@nestjs/swagger';
+import { Controller, Post, Body, Get, Param, ParseIntPipe, Put, Delete, UseGuards } from '@nestjs/common';
+import { ApiTags, ApiResponse, ApiBody, ApiBearerAuth } from '@nestjs/swagger';
 import { CreateBundleProductDto } from '../../../core/bundle-products/application/dto/create-bundle-product.dto';
 import { UpdateBundleProductDto } from '../../../core/bundle-products/application/dto/update-bundle-product.dto';
 import { BundleProductMapper } from '../../../core/bundle-products/application/mappers/bundle-product.mapper';
@@ -9,6 +9,8 @@ import { UpdateBundleProductUseCase } from '../../../core/bundle-products/applic
 import { GetBundleProductUseCase } from '../../../core/bundle-products/application/usecases/get-bundle-product.usecase';
 import { ListBundleProductsUseCase } from '../../../core/bundle-products/application/usecases/list-bundle-products.usecase';
 import { DeleteBundleProductUseCase } from '../../../core/bundle-products/application/usecases/delete-bundle-product.usecase';
+import { AdminRoleGuard } from '../../../common/guards/admin-role.guard';
+import { SessionRequiredGuard } from '../../../common/guards/session-required.guard';
 
 @ApiTags('bundle-products')
 @Controller('bundle-products')
@@ -22,6 +24,8 @@ export class BundleProductsController {
   ) {}
 
   @Post()
+  @UseGuards(SessionRequiredGuard)
+  @ApiBearerAuth('access-token')
   @ApiResponse({ status: 201, description: 'Created', type: BundleProductDto })
   @ApiBody({ schema: { example: { bundleId: 1, productId: 123, amount: 2 } } })
   async create(@Body() dto: CreateBundleProductDto): Promise<BundleProductDto> {
@@ -30,6 +34,8 @@ export class BundleProductsController {
   }
 
   @Get('all')
+  @UseGuards(AdminRoleGuard)
+  @ApiBearerAuth('access-token')
   @ApiResponse({ status: 200, description: 'List', type: [BundleProductDto] })
   async list(): Promise<BundleProductDto[]> {
     const list = await this.listUseCase.execute();
@@ -37,6 +43,8 @@ export class BundleProductsController {
   }
 
   @Get(':id')
+  @UseGuards(SessionRequiredGuard)
+  @ApiBearerAuth('access-token')
   @ApiResponse({ status: 200, description: 'Get', type: BundleProductDto })
   async get(@Param('id', ParseIntPipe) id: number): Promise<BundleProductDto> {
     const p = await this.getUseCase.execute(id);
@@ -44,6 +52,8 @@ export class BundleProductsController {
   }
 
   @Put(':id')
+  @UseGuards(SessionRequiredGuard)
+  @ApiBearerAuth('access-token')
   @ApiResponse({ status: 200, description: 'Updated', type: BundleProductDto })
   async update(@Param('id', ParseIntPipe) id: number, @Body() dto: UpdateBundleProductDto): Promise<BundleProductDto> {
     const p = await this.updateUseCase.execute(id, { productId: dto.productId, amount: dto.amount });
@@ -51,6 +61,8 @@ export class BundleProductsController {
   }
 
   @Delete(':id')
+  @UseGuards(SessionRequiredGuard)
+  @ApiBearerAuth('access-token')
   @ApiResponse({ status: 204, description: 'Deleted' })
   async delete(@Param('id', ParseIntPipe) id: number): Promise<void> {
     await this.deleteUseCase.execute(id);
