@@ -1,6 +1,6 @@
 const amqp = require('amqplib');
 
-(async () => { 
+(async () => {
   // Cambia a localhost para ejecución local
   const conn = await amqp.connect('amqp://localhost');
   const channel = await conn.createChannel();
