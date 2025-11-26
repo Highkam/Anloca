@@ -1,0 +1,21 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("NOTIFICATION_DATABASE_URL")
+}
+
+model BundleReminder {
+  id                   Int       @id @default(autoincrement())
+  userId               Int
+  bundleId             Int
+  frequencyDays        Int
+  nextNotificationAt   DateTime
+  lastNotificationAt   DateTime?
+  jobId                String?
+  status               String    @default("active")
+  
+  @@map("bundle_reminders")
+}
