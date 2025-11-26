@@ -197,6 +197,16 @@ services:
       JWT_SECRET: auth_password
       NODE_ENV: production
       PORT: 3003
+      RABBITMQ_URL: amqp://guest:guest@rabbitmq:5672
+      NOTIFICATION_QUEUE: notification-events
+      REDIS_HOST: redis
+      REDIS_PORT: 6379
+      AUTH_SERVICE_URL: http://auth:3001/api
+      SMTP_HOST: smtp.gmail.com
+      SMTP_PORT: 587
+      SMTP_USER: ${SMTP_USER:-}
+      SMTP_PASS: ${SMTP_PASS:-}
+      SMTP_FROM: "Notification Service" <noreply@example.com>
     ports:
       - "3003:3003"
     depends_on:

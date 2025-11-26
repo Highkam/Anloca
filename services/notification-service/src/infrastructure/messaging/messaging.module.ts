@@ -2,6 +2,8 @@ import { Module, Global } from '@nestjs/common';
 import { BullModule } from '@nestjs/bull';
 import { RabbitMQConsumer } from './rabbitmq.consumer';
 import { NotificationProcessor } from './notification.processor';
+import { AuthService } from '../http/auth.service';
+import { EmailService } from '../email/email.service';
 
 @Global()
 @Module({
@@ -16,7 +18,7 @@ import { NotificationProcessor } from './notification.processor';
       name: 'notifications',
     }),
   ],
-  providers: [RabbitMQConsumer, NotificationProcessor],
+  providers: [RabbitMQConsumer, NotificationProcessor, AuthService, EmailService],
   exports: [RabbitMQConsumer, BullModule],
 })
 export class MessagingModule {}
