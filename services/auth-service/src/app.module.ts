@@ -11,9 +11,10 @@ import { ListRolesUseCase } from './application/use-cases/list-roles.use-case';
 import { UpdateRoleUseCase } from './application/use-cases/update-role.use-case';
 import { DeleteRoleUseCase } from './application/use-cases/delete-role.use-case';
 import { EventBusService } from './infrastructure/eventBus.service';
+import { UsersModule } from './interface/http/users/users.module';
 
 @Module({
-  imports: [],
+  imports: [UsersModule],
   controllers: [AppController, AuthController],
   providers: [AppService, LoginUseCase, CreateUserUseCase, CreateRoleUseCase, UserRepository, RoleRepository, ListRolesUseCase, UpdateRoleUseCase, DeleteRoleUseCase, EventBusService],
 })
