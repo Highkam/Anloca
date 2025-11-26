@@ -141,6 +141,7 @@ services:
     environment:
       DATABASE_URL: postgresql://cart_user:cart_password@postgres-cart:5432/cart_db
       CART_DATABASE_URL: postgresql://cart_user:cart_password@postgres-cart:5432/cart_db
+      JWT_SECRET: auth_password
       NODE_ENV: production
       PORT: 3002
     ports:
