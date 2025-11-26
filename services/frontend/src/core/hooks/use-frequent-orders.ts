@@ -2,7 +2,7 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import { useAuth } from '@/infraestructure/auth/auth-provider'
+import { useAuth } from '@/core/auth/auth-context'
 import { catalogService, Product } from '@/infraestructure/catalog/catalog.service'
 
 export interface FrequentOrder {

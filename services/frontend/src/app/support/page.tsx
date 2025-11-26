@@ -19,39 +19,14 @@ import {
 } from "@/core/ui/accordion"
 import { toast } from "@/core/hooks/use-toast"
 import { useCart } from "@/core/cart/cart-context"
-import { useAuth } from "@/infraestructure/auth/auth-provider"
-import { useRouter } from "next/navigation"
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogHeader,
-  DialogTitle,
-} from "@/core/ui/dialog"
+import { AuthGuard } from "@/components/auth/AuthGuard"
 
-export default function SupportPage() {
+function SupportContent() {
   const [subject, setSubject] = useState("")
   const [message, setMessage] = useState("")
-  const [showAuthRequired, setShowAuthRequired] = useState(false)
   const { cartItems } = useCart()
-  const { isAuthenticated } = useAuth()
-  const router = useRouter()
-
-  // Handler para rutas protegidas
-  const handleProtectedRoute = (route: string) => {
-    if (!isAuthenticated) {
-      setShowAuthRequired(true)
-      return
-    }
-    router.push(route)
-  }
 
   const handleSubmitTicket = () => {
-    if (!isAuthenticated) {
-      setShowAuthRequired(true)
-      return
-    }
-    
     if (!subject || !message) {
       toast({
         title: "Missing information",
@@ -113,20 +88,24 @@ export default function SupportPage() {
             <Home className="h-5 w-5" />
             Dashboard
           </Link>
-          <button
-            onClick={() => handleProtectedRoute('/profile')}
-            className="flex items-center gap-3 px-3 py-2 text-gray-500 transition-colors hover:text-gray-900 w-full text-left"
-          >
-            <User2 className="h-5 w-5" />
-            Profile
-          </button>
-          <button
-            onClick={() => handleProtectedRoute('/settings')}
-            className="flex items-center gap-3 px-3 py-2 text-gray-500 transition-colors hover:text-gray-900 w-full text-left"
-          >
-            <Settings className="h-5 w-5" />
-            Settings
-          </button>
+          <AuthGuard action="profile">
+            <Link
+              href="/profile"
+              className="flex items-center gap-3 px-3 py-2 text-gray-500 transition-colors hover:text-gray-900 w-full text-left"
+            >
+              <User2 className="h-5 w-5" />
+              Profile
+            </Link>
+          </AuthGuard>
+          <AuthGuard action="settings">
+            <Link
+              href="/settings"
+              className="flex items-center gap-3 px-3 py-2 text-gray-500 transition-colors hover:text-gray-900 w-full text-left"
+            >
+              <Settings className="h-5 w-5" />
+              Settings
+            </Link>
+          </AuthGuard>
           <Link
             href="/cart"
             className="flex items-center gap-3 px-3 py-2 text-gray-500 transition-colors hover:text-[#A564D3] hover:bg-[#FFC9FF]/20"
@@ -252,12 +231,14 @@ export default function SupportPage() {
                   onChange={(e) => setMessage(e.target.value)}
                 />
               </div>
-              <Button
-                className="bg-gradient-to-r from-[#A564D3] to-[#B66EE8] hover:from-[#B66EE8] hover:to-[#C879FF] text-white rounded-xl px-8 transition-all duration-200"
-                onClick={handleSubmitTicket}
-              >
-                Submit Ticket
-              </Button>
+              <AuthGuard action="general">
+                <Button
+                  className="bg-gradient-to-r from-[#A564D3] to-[#B66EE8] hover:from-[#B66EE8] hover:to-[#C879FF] text-white rounded-xl px-8 transition-all duration-200"
+                  onClick={handleSubmitTicket}
+                >
+                  Submit Ticket
+                </Button>
+              </AuthGuard>
             </CardContent>
           </Card>
 
@@ -287,39 +268,10 @@ export default function SupportPage() {
           </Card>
         </div>
       </main>
-      
-      {/* Auth Required Dialog */}
-      <Dialog open={showAuthRequired} onOpenChange={setShowAuthRequired}>
-        <DialogContent className="sm:max-w-md">
-          <DialogHeader>
-            <DialogTitle className="flex items-center gap-2">
-              <Mail className="h-5 w-5 text-[#A564D3]" />
-              Sign in to continue
-            </DialogTitle>
-            <DialogDescription>
-              You need to sign in to submit a ticket.
-            </DialogDescription>
-          </DialogHeader>
-          <div className="flex flex-col gap-4 mt-4">
-            <Button 
-              onClick={() => {
-                setShowAuthRequired(false)
-                router.push('/login')
-              }}
-              className="bg-gradient-to-r from-[#A564D3] to-[#B66EE8] hover:from-[#B66EE8] hover:to-[#C879FF] text-white transition-all duration-200 hover:scale-105"
-            >
-              Sign In / Sign Up
-            </Button>
-            <Button 
-              variant="outline" 
-              onClick={() => setShowAuthRequired(false)}
-              className="border-gray-300 hover:bg-gray-50"
-            >
-              Continue Browsing
-            </Button>
-          </div>
-        </DialogContent>
-      </Dialog>
     </div>
   )
+}
+
+export default function SupportPage() {
+  return <SupportContent />
 }

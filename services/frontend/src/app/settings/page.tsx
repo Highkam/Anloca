@@ -14,33 +14,13 @@ import { Switch } from "@/core/ui/switch"
 import { Separator } from "@/core/ui/separator"
 import { toast } from "@/core/hooks/use-toast"
 import { useCart } from "@/core/cart/cart-context"
-import { useAuth } from "@/infraestructure/auth/auth-provider"
-import { useRouter } from "next/navigation"
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogHeader,
-  DialogTitle,
-} from "@/core/ui/dialog"
+import { AuthGuard } from "@/components/auth/AuthGuard"
 
 function SettingsContent() {
   const [emailNotifications, setEmailNotifications] = useState(true)
   const [pushNotifications, setPushNotifications] = useState(false)
   const [marketingEmails, setMarketingEmails] = useState(true)
-  const [showAuthRequired, setShowAuthRequired] = useState(false)
   const { cartItems } = useCart()
-  const { isAuthenticated } = useAuth()
-  const router = useRouter()
-
-  // Handler para rutas protegidas
-  const handleProtectedRoute = (route: string) => {
-    if (!isAuthenticated) {
-      setShowAuthRequired(true)
-      return
-    }
-    router.push(route)
-  }
 
   const handleSaveSettings = () => {
     toast({
@@ -70,13 +50,15 @@ function SettingsContent() {
             <Home className="h-5 w-5" />
             Dashboard
           </Link>
-          <button
-            onClick={() => handleProtectedRoute('/profile')}
-            className="flex items-center gap-3 px-3 py-2 text-gray-500 transition-colors hover:text-gray-900 w-full text-left"
-          >
-            <User2 className="h-5 w-5" />
-            Profile
-          </button>
+          <AuthGuard action="profile">
+            <Link
+              href="/profile"
+              className="flex items-center gap-3 px-3 py-2 text-gray-500 transition-colors hover:text-gray-900 w-full text-left"
+            >
+              <User2 className="h-5 w-5" />
+              Profile
+            </Link>
+          </AuthGuard>
           <Link
             href="/settings"
             className="flex items-center gap-3 rounded-lg bg-gradient-to-r from-[#A564D3] to-[#B66EE8] px-3 py-2 text-white transition-colors shadow-md"
@@ -254,43 +236,14 @@ function SettingsContent() {
           </div>
         </div>
       </main>
-
-      {/* Auth Required Dialog */}
-      <Dialog open={showAuthRequired} onOpenChange={setShowAuthRequired}>
-        <DialogContent className="sm:max-w-md">
-          <DialogHeader>
-            <DialogTitle className="flex items-center gap-2">
-              <Settings className="h-5 w-5 text-[#A564D3]" />
-              Sign in to continue
-            </DialogTitle>
-            <DialogDescription>
-              You need to sign in to access this feature.
-            </DialogDescription>
-          </DialogHeader>
-          <div className="flex flex-col gap-4 mt-4">
-            <Button 
-              onClick={() => {
-                setShowAuthRequired(false)
-                router.push('/login')
-              }}
-              className="bg-gradient-to-r from-[#A564D3] to-[#B66EE8] hover:from-[#B66EE8] hover:to-[#C879FF] text-white transition-all duration-200 hover:scale-105"
-            >
-              Sign In / Sign Up
-            </Button>
-            <Button 
-              variant="outline" 
-              onClick={() => setShowAuthRequired(false)}
-              className="border-gray-300 hover:bg-gray-50"
-            >
-              Cancel
-            </Button>
-          </div>
-        </DialogContent>
-      </Dialog>
     </div>
   )
 }
 
 export default function SettingsPage() {
-  return <SettingsContent />
+  return (
+    <AuthGuard action="settings" blockAccess={true}>
+      <SettingsContent />
+    </AuthGuard>
+  )
 }

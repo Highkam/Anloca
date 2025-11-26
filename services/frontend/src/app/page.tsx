@@ -4,7 +4,6 @@ import { useState, useEffect } from 'react'
 import { Bell, Home, LogOut, Package, Search, Settings, ShoppingBag, User2 } from 'lucide-react'
 import Image from "next/image"
 import Link from "next/link"
-import { useRouter } from "next/navigation"
 
 import { Avatar, AvatarFallback, AvatarImage } from "@/core/ui/avatar"
 import { Button } from "@/core/ui/button"
@@ -12,17 +11,14 @@ import { Card, CardContent, CardHeader } from "@/core/ui/card"
 import { Input } from "@/core/ui/input"
 import { Separator } from "@/core/ui/separator"
 import { useCart } from "@/core/cart/cart-context"
-import { useAuth } from "@/infraestructure/auth/auth-provider"
+import { useAuth } from "@/core/auth/auth-context"
 import { useFrequentOrders } from "@/core/hooks/use-frequent-orders"
 import { AuthGuard } from "@/components/auth/AuthGuard"
-import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/core/ui/dialog"
 
 export default function Component() {
-  const [showAuthRequired, setShowAuthRequired] = useState(false)
   const { cartItems, addToCart, updateQuantity, calculateTotal, isCartOpen, setIsCartOpen } = useCart()
   const { user, isAuthenticated, logout } = useAuth()
   const { frequentOrders, loading: ordersLoading } = useFrequentOrders()
-  const router = useRouter()
   
   // Estado para la búsqueda
   const [searchQuery, setSearchQuery] = useState("")
@@ -30,15 +26,6 @@ export default function Component() {
 
   // Solo mostrar órdenes frecuentes para usuarios autenticados
   const displayFrequentOrders = isAuthenticated ? frequentOrders : []
-
-  // Handler para rutas protegidas
-  const handleProtectedRoute = (route: string) => {
-    if (!isAuthenticated) {
-      setShowAuthRequired(true)
-      return
-    }
-    router.push(route)
-  }
 
   const popularItems = [
     {
@@ -188,25 +175,10 @@ export default function Component() {
   }
 
   const handleAddToCart = (item: any) => {
-    if (!isAuthenticated) {
-      setShowAuthRequired(true)
-      return
-    }
-    addToCart(item, true) // skipAuthCheck = true porque ya verificamos aquí
-  }
-
-  const handleAuthSuccess = () => {
-    setShowAuthRequired(false)
-    // Refrescar la página o actualizar el estado después de autenticarse
-    window.location.reload()
+    addToCart(item, true) // skipAuthCheck será manejado por AuthGuard
   }
 
   const reorderFrequentItems = () => {
-    if (!isAuthenticated) {
-      setShowAuthRequired(true)
-      return
-    }
-    
     displayFrequentOrders.forEach((frequentItem) => {
       // Convertir FrequentOrderItem a formato compatible con addToCart
       const itemToAdd = {
@@ -237,7 +209,7 @@ export default function Component() {
             alt="logo"
             width={200}
             height={60}
-            className="h-20 w-auto"
+            className="h-28 w-auto"
           />
         </div>
         <nav className="space-y-6">
@@ -248,20 +220,24 @@ export default function Component() {
             <Home className="h-5 w-5" />
             Dashboard
           </Link>
-          <button
-            onClick={() => handleProtectedRoute('/profile')}
-            className="flex items-center gap-3 px-3 py-2 text-gray-500 transition-colors hover:text-[#A564D3] hover:bg-[#FFC9FF]/20 w-full text-left"
-          >
-            <User2 className="h-5 w-5" />
-            Profile
-          </button>
-          <button
-            onClick={() => handleProtectedRoute('/settings')}
-            className="flex items-center gap-3 px-3 py-2 text-gray-500 transition-colors hover:text-[#A564D3] hover:bg-[#FFC9FF]/20 w-full text-left"
-          >
-            <Settings className="h-5 w-5" />
-            Settings
-          </button>
+          <AuthGuard action="profile">
+            <Link
+              href="/profile"
+              className="flex items-center gap-3 px-3 py-2 text-gray-500 transition-colors hover:text-[#A564D3] hover:bg-[#FFC9FF]/20 w-full text-left"
+            >
+              <User2 className="h-5 w-5" />
+              Profile
+            </Link>
+          </AuthGuard>
+          <AuthGuard action="settings">
+            <Link
+              href="/settings"
+              className="flex items-center gap-3 px-3 py-2 text-gray-500 transition-colors hover:text-[#A564D3] hover:bg-[#FFC9FF]/20 w-full text-left"
+            >
+              <Settings className="h-5 w-5" />
+              Settings
+            </Link>
+          </AuthGuard>
           <Link
             href="/cart"
             className="flex items-center gap-3 px-3 py-2 text-gray-500 transition-colors hover:text-[#A564D3] hover:bg-[#FFC9FF]/20"
@@ -298,7 +274,7 @@ export default function Component() {
         <header className="mb-8 flex items-center justify-between">
           <div className="space-y-1">
             <h2 className="text-2xl font-semibold">
-              Hello, {isAuthenticated ? user?.firstName || 'User' : 'Guest'}! <span className="ml-1"></span>
+              Hello, {isAuthenticated ? user?.name || 'User' : 'Guest'}! <span className="ml-1"></span>
             </h2>
             <p className="text-gray-500">{isAuthenticated ? 'Welcome Back' : 'Browse our products'}</p>
           </div>
@@ -337,16 +313,17 @@ export default function Component() {
                 </span>
               )}
             </Button>
-            <Avatar 
-              className="w-10 h-10 cursor-pointer hover:ring-2 hover:ring-[#B66EE8] transition-all"
-              onClick={() => handleProtectedRoute('/profile')}
-            >
-              <AvatarImage
-                src={isAuthenticated && user?.avatar ? user.avatar : "/images/dd.jpeg"}
-                alt="User avatar"
-              />
-              <AvatarFallback>{isAuthenticated && user?.firstName ? user.firstName.charAt(0).toUpperCase() : 'U'}</AvatarFallback>
-            </Avatar>
+            <AuthGuard action="profile">
+              <Avatar 
+                className="w-10 h-10 cursor-pointer hover:ring-2 hover:ring-[#B66EE8] transition-all"
+              >
+                <AvatarImage
+                  src="/images/dd.jpeg"
+                  alt="User avatar"
+                />
+                <AvatarFallback>{isAuthenticated && user?.name ? user.name.charAt(0).toUpperCase() : 'U'}</AvatarFallback>
+              </Avatar>
+            </AuthGuard>
           </div>
         </header>
 
@@ -407,10 +384,10 @@ export default function Component() {
                     Sign in to access your personalized order history and reorder your favorite products with one click
                   </p>
                   <Button
-                    onClick={() => router.push('/login')}
+                    asChild
                     className="bg-white text-[#A564D3] hover:bg-white/90 hover:text-[#B66EE8] px-8 py-3 rounded-xl font-semibold transition-all duration-200 hover:scale-105 shadow-md"
                   >
-                    Sign In
+                    <Link href="/login">Sign In</Link>
                   </Button>
                 </div>
               ) : ordersLoading ? (
@@ -462,13 +439,15 @@ export default function Component() {
                   </div>
 
                   <div className="flex items-center gap-4">
-                    <Button
-                      className="flex-1 bg-white text-[#A564D3] hover:bg-white/90 hover:text-[#B66EE8] h-14 text-lg font-semibold rounded-2xl transition-all duration-200 hover:scale-105 shadow-md"
-                      onClick={reorderFrequentItems}
-                    >
-                      <Package className="h-5 w-5 mr-2" />
-                      Reorder Entire Package
-                    </Button>
+                    <AuthGuard action="cart">
+                      <Button
+                        className="flex-1 bg-white text-[#A564D3] hover:bg-white/90 hover:text-[#B66EE8] h-14 text-lg font-semibold rounded-2xl transition-all duration-200 hover:scale-105 shadow-md"
+                        onClick={reorderFrequentItems}
+                      >
+                        <Package className="h-5 w-5 mr-2" />
+                        Reorder Entire Package
+                      </Button>
+                    </AuthGuard>
                     <Button
                       variant="outline"
                       className="h-14 px-8 rounded-2xl border-2 border-white bg-white/20 text-white hover:bg-white hover:text-[#A564D3] transition-all duration-200 shadow-md"
@@ -546,12 +525,14 @@ export default function Component() {
                   </div>
                   <div className="flex items-center justify-between">
                     <span className="text-[#B66EE8] text-lg font-bold">$ {item.price}</span>
-                    <Button
-                      onClick={() => handleAddToCart(item)}
-                      className="bg-gradient-to-r from-[#A564D3] to-[#B66EE8] hover:from-[#B66EE8] hover:to-[#C879FF] text-white rounded-xl px-6 transition-all duration-200 hover:scale-105 shadow-md"
-                    >
-                      Add To Cart
-                    </Button>
+                    <AuthGuard action="cart">
+                      <Button
+                        onClick={() => handleAddToCart(item)}
+                        className="bg-gradient-to-r from-[#A564D3] to-[#B66EE8] hover:from-[#B66EE8] hover:to-[#C879FF] text-white rounded-xl px-6 transition-all duration-200 hover:scale-105 shadow-md"
+                      >
+                        Add To Cart
+                      </Button>
+                    </AuthGuard>
                   </div>
                 </CardContent>
               </Card>
@@ -624,55 +605,20 @@ export default function Component() {
               <p>Total</p>
               <p>$ {cartTotal.toFixed(2)}</p>
             </div>
-            <Button 
-              className="w-full bg-gradient-to-r from-[#A564D3] to-[#B66EE8] hover:from-[#B66EE8] hover:to-[#C879FF] text-white rounded-2xl h-14 text-lg font-semibold mt-4 transition-all duration-200 hover:scale-105 shadow-lg"
-              onClick={() => {
-                if (!isAuthenticated) {
-                  setShowAuthRequired(true)
-                } else {
+            <AuthGuard action="purchase">
+              <Button 
+                className="w-full bg-gradient-to-r from-[#A564D3] to-[#B66EE8] hover:from-[#B66EE8] hover:to-[#C879FF] text-white rounded-2xl h-14 text-lg font-semibold mt-4 transition-all duration-200 hover:scale-105 shadow-lg"
+                onClick={() => {
                   // Proceder con checkout
                   console.log('Proceeding to checkout')
-                }
-              }}
-            >
-              Checkout
-            </Button>
+                }}
+              >
+                Checkout
+              </Button>
+            </AuthGuard>
           </div>
         </aside>
       )}
-
-      {/* Auth Required Dialog */}
-      <Dialog open={showAuthRequired} onOpenChange={setShowAuthRequired}>
-        <DialogContent className="sm:max-w-md">
-          <DialogHeader>
-            <DialogTitle className="flex items-center gap-2">
-              <ShoppingBag className="h-5 w-5 text-[#A564D3]" />
-              Sign in to continue
-            </DialogTitle>
-            <DialogDescription>
-              You need to sign in to add products to your cart and make purchases.
-            </DialogDescription>
-          </DialogHeader>
-          <div className="flex flex-col gap-4 mt-4">
-            <Button 
-              onClick={() => {
-                setShowAuthRequired(false)
-                router.push('/login')
-              }}
-              className="bg-gradient-to-r from-[#A564D3] to-[#B66EE8] hover:from-[#B66EE8] hover:to-[#C879FF] text-white transition-all duration-200 hover:scale-105"
-            >
-              Sign In / Sign Up
-            </Button>
-            <Button 
-              variant="outline" 
-              onClick={() => setShowAuthRequired(false)}
-              className="border-gray-300 hover:bg-gray-50"
-            >
-              Continue Browsing
-            </Button>
-          </div>
-        </DialogContent>
-      </Dialog>
     </div>
   )
 }

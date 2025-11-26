@@ -2,7 +2,7 @@ import type { Metadata } from 'next'
 import { GeistSans } from 'geist/font/sans'
 import { GeistMono } from 'geist/font/mono'
 import { Analytics } from '@vercel/analytics/next'
-import { AuthProvider } from '@/infraestructure/auth/auth-provider'
+import { AuthProvider } from '@/core/auth/auth-context'
 import { CartProvider } from '@/core/cart/cart-context'
 import './globals.css'
 

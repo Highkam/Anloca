@@ -4,7 +4,6 @@ import { Bell, Home, LogOut, Mail, Search, Settings, ShoppingBag, User2 } from '
 import Image from "next/image"
 import Link from "next/link"
 import { useCallback, useState } from "react"
-import { useRouter } from "next/navigation"
 
 import { Avatar, AvatarFallback, AvatarImage } from "@/core/ui/avatar"
 import { Button } from "@/core/ui/button"
@@ -13,23 +12,10 @@ import { Input } from "@/core/ui/input"
 import { Separator } from "@/core/ui/separator"
 import { toast } from "@/core/hooks/use-toast"
 import { useCart } from "@/core/cart/cart-context"
-import { useAuth } from "@/infraestructure/auth/auth-provider"
-import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/core/ui/dialog"
+import { AuthGuard } from "@/components/auth/AuthGuard"
 
-export default function CartPage() {
-  const [showAuthRequired, setShowAuthRequired] = useState(false)
+function CartContent() {
   const { cartItems, updateQuantity, calculateTotal } = useCart()
-  const { isAuthenticated } = useAuth()
-  const router = useRouter()
-
-  // Handler para rutas protegidas
-  const handleProtectedRoute = (route: string) => {
-    if (!isAuthenticated) {
-      setShowAuthRequired(true)
-      return
-    }
-    router.push(route)
-  }
 
   const cartTotal = calculateTotal()
   const shippingCost = 0
@@ -37,10 +23,6 @@ export default function CartPage() {
 
   // Handler para checkout que requiere autenticación
   const handleCheckout = () => {
-    if (!isAuthenticated) {
-      setShowAuthRequired(true)
-      return
-    }
     // Proceder con checkout - aquí se integraría con el servicio de pagos
     toast({
       title: "Redirecting to checkout",
@@ -70,20 +52,24 @@ export default function CartPage() {
             <Home className="h-5 w-5" />
             Dashboard
           </Link>
-          <button
-            onClick={() => handleProtectedRoute('/profile')}
-            className="flex items-center gap-3 px-3 py-2 text-gray-500 transition-colors hover:text-gray-900 w-full text-left"
-          >
-            <User2 className="h-5 w-5" />
-            Profile
-          </button>
-          <button
-            onClick={() => handleProtectedRoute('/settings')}
-            className="flex items-center gap-3 px-3 py-2 text-gray-500 transition-colors hover:text-gray-900 w-full text-left"
-          >
-            <Settings className="h-5 w-5" />
-            Settings
-          </button>
+          <AuthGuard action="profile">
+            <Link
+              href="/profile"
+              className="flex items-center gap-3 px-3 py-2 text-gray-500 transition-colors hover:text-gray-900 w-full text-left"
+            >
+              <User2 className="h-5 w-5" />
+              Profile
+            </Link>
+          </AuthGuard>
+          <AuthGuard action="settings">
+            <Link
+              href="/settings"
+              className="flex items-center gap-3 px-3 py-2 text-gray-500 transition-colors hover:text-gray-900 w-full text-left"
+            >
+              <Settings className="h-5 w-5" />
+              Settings
+            </Link>
+          </AuthGuard>
           <Link
             href="/cart"
             className="flex items-center gap-3 rounded-lg bg-gradient-to-r from-[#A564D3] to-[#B66EE8] px-3 py-2 text-white transition-colors shadow-md"
@@ -235,12 +221,14 @@ export default function CartPage() {
                     <p className="text-2xl font-bold text-white">$ {(cartTotal + tax).toFixed(2)}</p>
                   </div>
                 </div>
-                <Button 
-                  onClick={handleCheckout}
-                  className="w-full bg-white text-[#A564D3] hover:bg-white/90 hover:text-[#B66EE8] rounded-2xl h-14 text-lg font-semibold transition-colors shadow-md"
-                >
-                  {isAuthenticated ? 'Proceed to Checkout' : 'Sign in to Checkout'}
-                </Button>
+                <AuthGuard action="purchase" showDialog={true}>
+                  <Button 
+                    onClick={handleCheckout}
+                    className="w-full bg-white text-[#A564D3] hover:bg-white/90 hover:text-[#B66EE8] rounded-2xl h-14 text-lg font-semibold transition-colors shadow-md"
+                  >
+                    Proceed to Checkout
+                  </Button>
+                </AuthGuard>
                 <Button
                   variant="outline"
                   className="w-full rounded-2xl h-14 text-lg font-semibold border-2 border-white bg-white/20 text-white hover:bg-white hover:text-[#A564D3] transition-all duration-200 shadow-md"
@@ -253,39 +241,10 @@ export default function CartPage() {
           </div>
         </div>
       </main>
-
-      {/* Auth Required Dialog */}
-      <Dialog open={showAuthRequired} onOpenChange={setShowAuthRequired}>
-        <DialogContent className="sm:max-w-md">
-          <DialogHeader>
-            <DialogTitle className="flex items-center gap-2">
-              <ShoppingBag className="h-5 w-5 text-[#A564D3]" />
-              Sign in to continue
-            </DialogTitle>
-            <DialogDescription>
-              You need to sign in to access this feature and make purchases.
-            </DialogDescription>
-          </DialogHeader>
-          <div className="flex flex-col gap-4 mt-4">
-            <Button 
-              onClick={() => {
-                setShowAuthRequired(false)
-                router.push('/login')
-              }}
-              className="bg-gradient-to-r from-[#A564D3] to-[#B66EE8] hover:from-[#B66EE8] hover:to-[#C879FF] text-white transition-all duration-200 hover:scale-105"
-            >
-              Sign In / Sign Up
-            </Button>
-            <Button 
-              variant="outline" 
-              onClick={() => setShowAuthRequired(false)}
-              className="border-gray-300 hover:bg-gray-50"
-            >
-              Continue Shopping
-            </Button>
-          </div>
-        </DialogContent>
-      </Dialog>
     </div>
   )
+}
+
+export default function CartPage() {
+  return <CartContent />
 }

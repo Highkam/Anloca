@@ -94,7 +94,7 @@ export default function AuthPage() {
 
         {/* Floating Product Images */}
         <div className="absolute inset-0 pointer-events-none">
-            <div className="absolute top-[6%] right-16 w-80 h-80 rounded-2xl bg-gradient-to-br from-[#FFCEFF]/70 to-[#ffceff]/60 backdrop-blur-md p-4 shadow-2xl animate-float border border-[#ffb7ff]/40">
+            <div className="absolute top-[6%] right-16 w-80 h-80 rounded-2xl bg-gradient-to-br from-[#efdafa]/70 to-[#efdafa]/60 backdrop-blur-md p-4 shadow-2xl animate-float border border-[#ffb7ff]/40">
             <Image
               src="images/fashion.jpg"
               alt="fashion"
@@ -103,7 +103,7 @@ export default function AuthPage() {
               className="w-full h-full object-cover rounded-xl shadow-lg"
             />
             </div>
-          <div className="absolute top-[14%] left-20 w-60 h-60 rounded-2xl bg-gradient-to-br from-[#f2a8ff]/70 to-[#ffc4ff]/60 backdrop-blur-md p-3 shadow-2xl animate-float-delayed border border-[#e498ff]/40">
+          <div className="absolute top-[14%] left-20 w-60 h-60 rounded-2xl bg-gradient-to-br from-[#f2a8ff]/70 to-[#efdafa]/60 backdrop-blur-md p-3 shadow-2xl animate-float-delayed border border-[#e498ff]/40">
             <Image
               src="images/items-varios.jpeg"
               alt="Items varios"

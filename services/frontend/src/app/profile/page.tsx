@@ -4,34 +4,17 @@ import { useState } from 'react'
 import { Bell, Home, LogOut, Mail, MapPin, Phone, Search, Settings, ShoppingBag, User2 } from 'lucide-react'
 import Image from "next/image"
 import Link from "next/link"
-import { useRouter } from 'next/navigation'
 
 import { Avatar, AvatarFallback, AvatarImage } from "@/core/ui/avatar"
 import { Button } from "@/core/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/core/ui/card"
 import { Input } from "@/core/ui/input"
 import { Separator } from "@/core/ui/separator"
-import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/core/ui/dialog"
 import { useCart } from "@/core/cart/cart-context"
-import { useAuth } from '@/infraestructure/auth/auth-provider'
-
-export default function ProfilePage() {
-  return <ProfileContent />
-}
+import { AuthGuard } from "@/components/auth/AuthGuard"
 
 function ProfileContent() {
-  const [showAuthRequired, setShowAuthRequired] = useState(false)
   const { cartItems } = useCart()
-  const { isAuthenticated } = useAuth()
-  const router = useRouter()
-
-  const handleProtectedRoute = (route: string) => {
-    if (!isAuthenticated) {
-      setShowAuthRequired(true)
-      return
-    }
-    router.push(route)
-  }
   const recentOrders = [
     {
       id: "ORD-001",
@@ -57,7 +40,6 @@ function ProfileContent() {
   ]
 
   return (
-    <>
     <div className="flex min-h-screen bg-[#fcfdfd]">
       {/* Sidebar */}
       <aside className="w-50 border-r px-6 py-8 bg-[#f8f9fa]/95 sticky top-0 h-screen">
@@ -85,13 +67,15 @@ function ProfileContent() {
             <User2 className="h-5 w-5" />
             Profile
           </Link>
-          <button
-            onClick={() => handleProtectedRoute('/settings')}
-            className="flex items-center gap-3 px-3 py-2 text-gray-500 transition-colors hover:text-[#A564D3] hover:bg-[#FFC9FF]/20 w-full text-left"
-          >
-            <Settings className="h-5 w-5" />
-            Settings
-          </button>
+          <AuthGuard action="settings">
+            <Link
+              href="/settings"
+              className="flex items-center gap-3 px-3 py-2 text-gray-500 transition-colors hover:text-[#A564D3] hover:bg-[#FFC9FF]/20 w-full text-left"
+            >
+              <Settings className="h-5 w-5" />
+              Settings
+            </Link>
+          </AuthGuard>
           <Link
             href="/cart"
             className="flex items-center gap-3 px-3 py-2 text-gray-500 transition-colors hover:text-[#A564D3] hover:bg-[#FFC9FF]/20"
@@ -106,13 +90,15 @@ function ProfileContent() {
             </div>
             My Cart
           </Link>
-          <button
-            onClick={() => handleProtectedRoute('/support')}
-            className="flex items-center gap-3 px-3 py-2 text-gray-500 transition-colors hover:text-[#A564D3] hover:bg-[#FFC9FF]/20 w-full text-left"
-          >
-            <User2 className="h-5 w-5" />
-            Support
-          </button>
+          <AuthGuard action="general">
+            <Link
+              href="/support"
+              className="flex items-center gap-3 px-3 py-2 text-gray-500 transition-colors hover:text-[#A564D3] hover:bg-[#FFC9FF]/20 w-full text-left"
+            >
+              <User2 className="h-5 w-5" />
+              Support
+            </Link>
+          </AuthGuard>
           <Link
             href="#"
             className="flex items-center gap-3 px-3 py-2 text-red-500 transition-colors hover:text-red-600 hover:bg-red-50"
@@ -306,33 +292,13 @@ function ProfileContent() {
         </div>
         </main>
       </div>
-      
-      {/* Auth Required Dialog */}
-      <Dialog open={showAuthRequired} onOpenChange={setShowAuthRequired}>
-        <DialogContent>
-          <DialogHeader>
-            <DialogTitle>Authentication Required</DialogTitle>
-            <DialogDescription>
-              You need to sign in to access this feature.
-            </DialogDescription>
-          </DialogHeader>
-          <div className="flex gap-3 mt-6">
-            <Button 
-              onClick={() => router.push('/login')}
-              className="flex-1 bg-gradient-to-r from-[#A564D3] to-[#B66EE8] hover:from-[#B66EE8] hover:to-[#C879FF] text-white"
-            >
-              Sign In
-            </Button>
-            <Button 
-              variant="outline" 
-              onClick={() => setShowAuthRequired(false)}
-              className="flex-1"
-            >
-              Cancel
-            </Button>
-          </div>
-        </DialogContent>
-      </Dialog>
-    </>
+    )
+}
+
+export default function ProfilePage() {
+  return (
+    <AuthGuard action="profile" blockAccess={true}>
+      <ProfileContent />
+    </AuthGuard>
   )
 }
