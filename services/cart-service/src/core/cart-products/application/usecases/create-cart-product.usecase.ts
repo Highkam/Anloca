@@ -32,6 +32,15 @@ export class CreateCartProductUseCase {
     
     if (!product) throw new NotFoundException(`Product with id ${productId} not found`);
 
+    // Validate stock
+    if (product.stock < amount) {
+      throw new BadRequestException(`Insufficient stock. Requested: ${amount}, Available: ${product.stock}`);
+    }
+
+    if (!product.is_active) {
+      throw new BadRequestException(`Product ${productId} is not active`);
+    }
+
     const cartProduct = new CartProduct(null, cartId, productId, amount);
     return await this.cartProductRepository.create(cartProduct);
   }
