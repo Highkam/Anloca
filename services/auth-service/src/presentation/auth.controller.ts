@@ -210,3 +210,4 @@ export class AuthController {
     await this.deleteRoleUseCase.execute(id);
   }
 
+}

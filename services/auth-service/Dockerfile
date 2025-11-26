@@ -30,9 +30,11 @@ COPY --from=builder /app/tsconfig.json ./tsconfig.json
 COPY --from=builder /app/tsconfig.build.json ./tsconfig.build.json
 COPY --from=builder /app/dist ./dist
 COPY --from=builder /app/node_modules ./node_modules
-RUN mkdir -p /tmp/prisma && chown -R node:node /tmp/prisma
+RUN mkdir -p /tmp/prisma && chown -R node:node /tmp/prisma /app /app/node_modules
 COPY --from=builder /app/prisma ./prisma
-RUN addgroup -S node >/dev/null 2>&1 || true && adduser -S node -G node >/dev/null 2>&1 || true
+RUN addgroup -S node >/dev/null 2>&1 || true && \
+    adduser -S node -G node >/dev/null 2>&1 || true && \
+    chown -R node:node /app
 USER node
 
 EXPOSE 3001
