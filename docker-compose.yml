@@ -202,6 +202,10 @@ services:
     depends_on:
       postgres-notification:
         condition: service_healthy
+      rabbitmq:
+        condition: service_started
+      redis:
+        condition: service_started
     networks:
       - app-network
     volumes:
@@ -211,6 +215,7 @@ services:
   # RabbitMQ
   rabbitmq:
     image: rabbitmq:3-management
+    container_name: rabbitmq
     ports:
       - "5672:5672"
       - "15672:15672" # Interfaz web
@@ -221,6 +226,20 @@ services:
       interval: 5s
       timeout: 10s
       retries: 10
+
+  # Redis para BullMQ
+  redis:
+    image: redis:7-alpine
+    container_name: redis
+    ports:
+      - "6379:6379"
+    networks:
+      - app-network
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 3s
+      retries: 5
 
 # Volúmenes para persistencia
 volumes:

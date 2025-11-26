@@ -13,8 +13,7 @@ export class RabbitMQConsumer implements OnModuleInit, OnModuleDestroy {
   private readonly rabbitUrl =
     process.env.RABBITMQ_URL || "amqp://guest:guest@rabbitmq:5672";
 
-  private readonly queue =
-    process.env.NOTIFICATION_QUEUE || "notification-events";
+  private queue: string = "";
 
   private isConnecting = false;
 
@@ -35,9 +34,21 @@ export class RabbitMQConsumer implements OnModuleInit, OnModuleDestroy {
       this.connection = await amqp.connect(this.rabbitUrl);
       this.channel = await this.connection.createChannel();
 
-      await this.channel.assertQueue(this.queue, { durable: true });
+      // Usar el mismo exchange que cart-service
+      await this.channel.assertExchange('events', 'topic', { durable: false });
+      
+      // Crear una cola exclusiva para este consumidor
+      const q = await this.channel.assertQueue('', { exclusive: true });
+      
+      // Suscribirse a los eventos específicos
+      await this.channel.bindQueue(q.queue, 'events', 'ProductRemovedFromCart');
+      await this.channel.bindQueue(q.queue, 'events', 'BundleCreated');
+      
+      // Guardar el nombre de la cola para consumir
+      this.queue = q.queue;
 
-      this.logger.log(`✅ Connected to RabbitMQ → Queue: ${this.queue}`);
+      this.logger.log(`✅ Connected to RabbitMQ → Exchange: events`);
+      this.logger.log(`✅ Subscribed to: ProductRemovedFromCart, BundleCreated`);
 
       // Auto-reconnect handlers
       this.connection.on("close", () => {
@@ -61,7 +72,7 @@ export class RabbitMQConsumer implements OnModuleInit, OnModuleDestroy {
   private async startConsumer() {
     if (!this.channel) return;
 
-    this.logger.log(`👂 Listening for messages on '${this.queue}'...`);
+    this.logger.log(`👂 Listening for messages on exchange 'events'...`);
 
     await this.channel.consume(
       this.queue,
@@ -70,11 +81,12 @@ export class RabbitMQConsumer implements OnModuleInit, OnModuleDestroy {
 
         try {
           const raw = msg.content.toString();
-          const event = JSON.parse(raw);
+          const data = JSON.parse(raw);
+          const eventType = msg.fields.routingKey; // El eventType viene en el routingKey
 
-          this.logger.log(`📨 Event received → ${event.eventType}`);
+          this.logger.log(`📨 Event received → ${eventType}`);
 
-          await this.routeEvent(event);
+          await this.routeEvent(eventType, data);
 
           this.channel!.ack(msg);
         } catch (err: any) {
@@ -86,27 +98,27 @@ export class RabbitMQConsumer implements OnModuleInit, OnModuleDestroy {
     );
   }
 
-  private async routeEvent(event: any) {
+  private async routeEvent(eventType: string, data: any) {
     // En lugar de procesar directamente, añadir a la cola de BullMQ
-    switch (event.eventType) {
+    switch (eventType) {
       case "ProductRemovedFromCart":
-        await this.notificationQueue.add('product-removed', event.data, {
+        await this.notificationQueue.add('product-removed', data, {
           attempts: 3,
           backoff: { type: 'exponential', delay: 2000 },
         });
         this.logger.log(`✅ Event queued: ProductRemovedFromCart`);
         break;
 
-      case "CartCreated":
-        await this.notificationQueue.add('cart-created', event.data, {
+      case "BundleCreated":
+        await this.notificationQueue.add('bundle-created', data, {
           attempts: 3,
           backoff: { type: 'exponential', delay: 2000 },
         });
-        this.logger.log(`✅ Event queued: CartCreated`);
+        this.logger.log(`✅ Event queued: BundleCreated`);
         break;
 
       default:
-        this.logger.warn(`⚠️ Unknown event: ${event.eventType}`);
+        this.logger.warn(`⚠️ Unknown event: ${eventType}`);
     }
   }
 
@@ -117,9 +129,9 @@ export class RabbitMQConsumer implements OnModuleInit, OnModuleDestroy {
     );
   }
 
-  async handleCartCreated(data: any) {
+  async handleBundleCreated(data: any) {
     this.logger.log(
-      `🛒 New cart created for user ${data.userId} (cart: ${data.cartId})`
+      `� Bundle ${data.bundleId} created for user ${data.userId}`
     );
   }
 

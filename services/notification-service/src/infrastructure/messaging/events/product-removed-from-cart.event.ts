@@ -8,3 +8,15 @@ export interface ProductRemovedFromCartEvent {
     removedAt: string;
   };
 }
+
+export interface BundleCreatedEvent {
+  eventType: 'BundleCreated';
+  timestamp: string;
+  data: {
+    bundleId: number;
+    userId: number;
+    name: string;
+    recurrenceId: number;
+  };
+}
+

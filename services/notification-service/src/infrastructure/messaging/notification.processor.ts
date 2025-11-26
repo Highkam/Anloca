@@ -29,20 +29,24 @@ export class NotificationProcessor {
     }
   }
 
-  @Process('cart-created')
-  async handleCartCreated(job: Job) {
-    this.logger.log(`🛒 Processing cart created event...`);
-    const { userId, cartId } = job.data;
+  @Process('bundle-created')
+  async handleBundleCreated(job: Job) {
+    this.logger.log(`� Processing bundle created event...`);
+    const { userId, bundleId, name, recurrenceId } = job.data;
 
     try {
       // TODO: Implementar lógica de notificación
+      // - Enviar email confirmando bundle creado
+      // - Push notification
+      // - SMS
+
       this.logger.log(
-        `✅ Notification sent: Cart ${cartId} created for user ${userId}`
+        `✅ Notification sent: Bundle "${name}" (ID: ${bundleId}) created for user ${userId} with recurrence ${recurrenceId}`
       );
 
       return { success: true, processedAt: new Date() };
     } catch (error) {
-      this.logger.error(`❌ Failed to process cart-created: ${error.message}`);
+      this.logger.error(`❌ Failed to process bundle-created: ${error.message}`);
       throw error;
     }
   }
