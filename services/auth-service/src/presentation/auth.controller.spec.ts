@@ -28,9 +28,7 @@ import { DeleteRoleUseCase } from '../application/use-cases/delete-role.use-case
 import { EventBusService } from 'src/infrastructure/eventBus.service';
 
 describe('AuthController', () => {
-  /**
-   * AuthController instance and mocked dependencies for each test case.
-   */
+
   let authController: AuthController;
   let loginUseCase: jest.Mocked<LoginUseCase>;
   let createUserUseCase: jest.Mocked<CreateUserUseCase>;
@@ -41,10 +39,7 @@ describe('AuthController', () => {
   let eventBusMock: any;
 
   beforeEach(() => {
-    /**
-     * Initialize all mocked use cases and inject them into the controller.
-     * Ensures isolation and repeatability for each test.
-     */
+
     loginUseCase = { execute: jest.fn() } as any;
     createUserUseCase = { execute: jest.fn() } as any;
     createRoleUseCase = { execute: jest.fn() } as any;
@@ -72,16 +67,17 @@ describe('AuthController', () => {
      */
     const dto = { email: 'test@example.com', password: '123456' };
 
+
     // Result returned by LoginUseCase (matches its real type)
     const useCaseResult = {
       id_user: 1,
       email: dto.email,
       name: 'Test User',
-      sessionToken: 'token-abc-123',
+      jwt: 'token-abc-123',
     };
 
-    // Expected response returned by the controller (id and sessionToken)
-    const expectedControllerResponse = { id: 1, sessionToken: 'token-abc-123' };
+    // Expected response returned by the controller (id and jwt)
+    const expectedControllerResponse = { id: 1, jwt: 'token-abc-123' };
 
   
     loginUseCase.execute.mockResolvedValue(useCaseResult as any);
