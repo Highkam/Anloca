@@ -1,4 +1,6 @@
 import { Injectable, Logger, OnModuleInit, OnModuleDestroy } from "@nestjs/common";
+import { InjectQueue } from "@nestjs/bull";
+import { Queue } from "bull";
 import amqp, { Connection, Channel, ConsumeMessage } from "amqplib";
 
 @Injectable()
@@ -15,6 +17,10 @@ export class RabbitMQConsumer implements OnModuleInit, OnModuleDestroy {
     process.env.NOTIFICATION_QUEUE || "notification-events";
 
   private isConnecting = false;
+
+  constructor(
+    @InjectQueue('notifications') private notificationQueue: Queue,
+  ) {}
 
   async onModuleInit() {
     this.logger.log("🔄 Initializing RabbitMQ consumer...");
@@ -81,18 +87,30 @@ export class RabbitMQConsumer implements OnModuleInit, OnModuleDestroy {
   }
 
   private async routeEvent(event: any) {
+    // En lugar de procesar directamente, añadir a la cola de BullMQ
     switch (event.eventType) {
       case "ProductRemovedFromCart":
-        return this.handleProductRemoved(event.data);
+        await this.notificationQueue.add('product-removed', event.data, {
+          attempts: 3,
+          backoff: { type: 'exponential', delay: 2000 },
+        });
+        this.logger.log(`✅ Event queued: ProductRemovedFromCart`);
+        break;
 
       case "CartCreated":
-        return this.handleCartCreated(event.data);
+        await this.notificationQueue.add('cart-created', event.data, {
+          attempts: 3,
+          backoff: { type: 'exponential', delay: 2000 },
+        });
+        this.logger.log(`✅ Event queued: CartCreated`);
+        break;
 
       default:
         this.logger.warn(`⚠️ Unknown event: ${event.eventType}`);
     }
   }
 
+  // Estos métodos ya no se usan directamente, los procesa el Worker
   async handleProductRemoved(data: any) {
     this.logger.log(
       `🗑️ Product ${data.productId} removed from cart ${data.cartId} by user ${data.userId}`
