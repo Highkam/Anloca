@@ -1,7 +1,9 @@
 // src/presentation/controllers/products.controller.ts
-import { Controller, Get, Post, Body, Patch, Param, Delete, UseInterceptors } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, UseInterceptors, UseGuards } from '@nestjs/common';
+import { SessionRequiredGuard } from '../../common/guards/session-required.guard';
+import { AdminRoleGuard } from '../../common/guards/admin-role.guard';
 import { EventBusService } from '../../infrastructure/eventBus.service';
-import { ApiTags, ApiOperation, ApiResponse } from '@nestjs/swagger';
+import { ApiTags, ApiOperation, ApiResponse, ApiBearerAuth } from '@nestjs/swagger';
 import { CreateProductUseCase } from '../../application/use-cases/create-product.use-case';
 import { GetProductsUseCase } from '../../application/use-cases/get-products.use-case';
 import { GetProductUseCase } from '../../application/use-cases/get-product.use-case';
@@ -58,6 +60,9 @@ export class ProductsController {
   }
 
   @Patch(':id')
+    @UseGuards(SessionRequiredGuard)
+    @UseGuards(AdminRoleGuard)
+    @ApiBearerAuth('access-token')
   @ApiOperation({ summary: 'Update a product' })
   @ApiResponse({ status: 200, description: 'Product updated successfully' })
   @ApiResponse({ status: 400, description: 'Bad request' })
@@ -69,6 +74,9 @@ export class ProductsController {
   }
 
   @Delete(':id')
+    @UseGuards(SessionRequiredGuard)
+    @UseGuards(AdminRoleGuard)
+    @ApiBearerAuth('access-token')
   @ApiOperation({ summary: 'Delete a product' })
   @ApiResponse({ status: 200, description: 'Product deleted successfully' })
   @ApiResponse({ status: 404, description: 'Product not found' })

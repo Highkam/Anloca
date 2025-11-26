@@ -12,7 +12,7 @@ describe('LoginUseCase', () => {
     loginUseCase = new LoginUseCase(userRepoMock);
   });
 
-  it('should return id_user, email, name and sessionToken if user exists and password is correct', async () => {
+  it('should return id_user, email, name and jwt if user exists and password is correct', async () => {
     const user = {
       id_user: 1,
       email: 'test@example.com',
@@ -29,8 +29,8 @@ describe('LoginUseCase', () => {
     expect(result.id_user).toBe(1);
     expect(result.email).toBe('test@example.com');
     expect(result.name).toBe('Test User');
-    expect(typeof result.sessionToken).toBe('string');
-    expect(result.sessionToken.length).toBeGreaterThan(0);
+    expect(typeof result.jwt).toBe('string');
+    expect(result.jwt.length).toBeGreaterThan(0);
   });
 
   it('should throw UnauthorizedException if user does not exist', async () => {

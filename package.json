@@ -23,13 +23,16 @@
   "homepage": "https://github.com/Highkam/Anloca#readme",
   "dependencies": {
     "@nestjs/common": "^11.1.6",
+    "@nestjs/config": "^4.0.2",
     "@nestjs/swagger": "^11.2.3",
     "@prisma/client": "^6.19.0",
     "amqplib": "^0.10.9",
     "axios": "^1.13.2",
     "bcrypt": "^6.0.0",
     "express": "^5.1.0",
+    "jsonwebtoken": "^9.0.2",
     "nestjs": "^0.0.1",
+    "nodemailer": "^7.0.11",
     "prisma": "^6.19.0"
   },
   "devDependencies": {
