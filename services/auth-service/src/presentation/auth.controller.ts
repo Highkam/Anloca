@@ -141,6 +141,8 @@ export class AuthController {
   }
 
   @Put('roles/:id')
+  @ApiBearerAuth()
+  @UseGuards(AdminRoleGuard)
   @ApiResponse({ status: 200, description: 'Role updated', type: RoleItemDto })
   @ApiResponse({ status: 404, description: 'Role not found' })
   @ApiResponse({ status: 409, description: 'Another role with this name already exists' })
@@ -200,14 +202,42 @@ export class AuthController {
     return { success: false };
   }
 
+  /**
+   * Deletes a role by id.
+   * @param idParam Role id as string
+   */
   @Delete('roles/:id')
   @HttpCode(HttpStatus.NO_CONTENT)
+  @ApiBearerAuth()
+  @UseGuards(AdminRoleGuard)
   @ApiResponse({ status: 204, description: 'Role deleted' })
   @ApiResponse({ status: 404, description: 'Role not found' })
+  @ApiResponse({ status: 400, description: 'Invalid id' })
   async deleteRole(@Param('id') idParam: string): Promise<void> {
     const id = parseInt(idParam, 10);
     if (Number.isNaN(id)) throw new BadRequestException('Invalid id');
     await this.deleteRoleUseCase.execute(id);
+  }
+
+  /**
+   * Deletes a user by id.
+   * @param idParam User id as string
+   */
+  @Delete('users/:id')
+  @HttpCode(HttpStatus.NO_CONTENT)
+  @ApiBearerAuth()
+  @UseGuards(AdminRoleGuard)
+  @ApiResponse({ status: 204, description: 'User deleted' })
+  @ApiResponse({ status: 404, description: 'User not found' })
+  @ApiResponse({ status: 400, description: 'Invalid id' })
+  async deleteUser(@Param('id') idParam: string): Promise<void> {
+    const id = parseInt(idParam, 10);
+    if (Number.isNaN(id)) throw new BadRequestException('Invalid id');
+    if (typeof (this.deleteRoleUseCase as any).deleteUser === 'function') {
+      await (this.deleteRoleUseCase as any).deleteUser(id);
+    } else {
+      throw new BadRequestException('Delete user use case not implemented');
+    }
   }
 
 }
