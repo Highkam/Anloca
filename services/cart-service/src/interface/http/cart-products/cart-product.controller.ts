@@ -70,7 +70,7 @@ export class CartProductController {
 
     // Publicar evento en RabbitMQ
     await this.eventBus.publish('ProductRemovedFromCart', {
-      userId: validatedUserId,
+      userId: cart.userId,
       cartId,
       productId,
       removedAt: new Date().toISOString()
