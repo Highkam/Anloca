@@ -9,6 +9,7 @@ import { CartProductMapper } from '../../../core/cart-products/application/mappe
 import { sessionRequired } from '../../../common/decorators/session-required.decorator';
 import { CART_REPOSITORY } from '../../../core/carts/application/tokens';
 import type { CartRepositoryPort } from '../../../core/carts/domain/cart.repository.port';
+import { EventBusService } from '../../../infrastructure/eventBus/eventBus.service';
 
 @ApiTags('CartProducts')
 @Controller('cart-products')
@@ -18,6 +19,7 @@ export class CartProductController {
     private readonly listCartProducts: ListCartProductsUseCase,
     private readonly deleteCartProduct: DeleteCartProductUseCase,
     @Inject(CART_REPOSITORY) private readonly cartRepository: CartRepositoryPort,
+    private readonly eventBus: EventBusService,
   ) {}
 
   @Post()
@@ -79,6 +81,15 @@ export class CartProductController {
     }
 
     const deleted = await this.deleteCartProduct.execute(cartId, productId);
+
+    // Publicar evento en RabbitMQ
+    await this.eventBus.publish('ProductRemovedFromCart', {
+      userId: validatedUserId,
+      cartId,
+      productId,
+      removedAt: new Date().toISOString()
+    });
+
     return CartProductMapper.toDto(deleted);
   }
 }

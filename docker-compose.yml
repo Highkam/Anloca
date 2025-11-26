@@ -154,6 +154,13 @@ services:
       - ./services/cart-service/src:/app/src
       - ./services/cart-service/prisma:/app/prisma
 
+  # RabbitMQ
+  rabbitmq:
+    image: rabbitmq:3-management
+    ports:
+      - "5672:5672"
+      - "15672:15672" # Interfaz web
+
 # Volúmenes para persistencia
 volumes:
   catalog_data:
