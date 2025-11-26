@@ -1,8 +1,8 @@
-import { Injectable, CanActivate, ExecutionContext, UnauthorizedException } from '@nestjs/common';
+import { Injectable, CanActivate, ExecutionContext, UnauthorizedException, ForbiddenException } from '@nestjs/common';
 import * as jwt from 'jsonwebtoken';
 
 @Injectable()
-export class SessionRequiredGuard implements CanActivate {
+export class AdminRoleGuard implements CanActivate {
   canActivate(context: ExecutionContext): boolean {
     const request = context.switchToHttp().getRequest();
     const authHeader = request.headers['authorization'];
@@ -17,11 +17,13 @@ export class SessionRequiredGuard implements CanActivate {
     try {
       const secret = process.env.JWT_SECRET || 'default_secret';
       const payload: any = jwt.verify(token, secret);
-      
-      // Adjuntar userId al request para uso posterior
-      request.userId = payload.id || payload.id_user || null;
-      request.userRole = payload.role_id || null;
-      
+      if (payload.role_id !== 1) {
+        throw new ForbiddenException({
+          statusCode: 403,
+          message: 'Only admin can perform this action',
+          error: 'Forbidden',
+        });
+      }
       return true;
     } catch (err) {
       throw new UnauthorizedException({
