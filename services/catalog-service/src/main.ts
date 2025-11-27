@@ -14,6 +14,13 @@ async function bootstrap() {
     .setDescription('Microservicio de catálogo')
     .setVersion('1.0')
     .addTag('products')
+    .addBearerAuth({
+      type: 'http',
+      scheme: 'bearer',
+      bearerFormat: 'JWT',
+      name: 'Authorization',
+      in: 'header',
+    }, 'access-token')
     .build();
   
   const document = SwaggerModule.createDocument(app, config);
