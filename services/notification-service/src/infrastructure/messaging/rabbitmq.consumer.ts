@@ -35,10 +35,13 @@ export class RabbitMQConsumer implements OnModuleInit, OnModuleDestroy {
       this.channel = await this.connection.createChannel();
 
       // Usar el mismo exchange que cart-service
-      await this.channel.assertExchange('events', 'topic', { durable: false });
+      await this.channel.assertExchange('events', 'topic', { durable: true });
       
-      // Crear una cola exclusiva para este consumidor
-      const q = await this.channel.assertQueue('', { exclusive: true });
+      // Crear una cola durable para persistir eventos
+      const q = await this.channel.assertQueue('notification-service-queue', { 
+        durable: true,
+        autoDelete: false 
+      });
       
       // Suscribirse a los eventos específicos
       await this.channel.bindQueue(q.queue, 'events', 'ProductRemovedFromCart');
